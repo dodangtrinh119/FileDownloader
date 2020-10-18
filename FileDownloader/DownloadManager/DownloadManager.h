@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "DownloaderProtocol.h"
+#import "DownloadItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,7 +16,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, retain) id<DownloaderProtocol> downloader;
 
-+ (instancetype)sharedInstance;
+- (void)cancelDownload:(id<DownloadItem>)item;
+
+- (void)pauseDownload:(id<DownloadItem>)item;
+
+- (void)resumeDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler;
+
+- (void)startDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler;
+
+- (void)configDownloader;
+
+- (void)pauseAllDownloading;
 
 @end
 

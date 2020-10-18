@@ -11,6 +11,7 @@
 @implementation MusicModel
 
 @synthesize downloadURL;
+@synthesize storedLocalPath;
 
 - (instancetype)initWithSongName:(NSString *)name andArtist:(NSString *)artist downloadUrl:(NSString *)url {
     self = [super init];
@@ -21,6 +22,7 @@
     }
     return self;
 }
+
 
 
 @end

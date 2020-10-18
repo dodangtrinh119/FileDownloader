@@ -7,10 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		12B0128B09EFE48D5B3800D4 /* libPods-FileDownloader-FileDownloaderUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF48B7FE6483395145E2062 /* libPods-FileDownloader-FileDownloaderUITests.a */; };
+		4A94E575253A4278009F7E22 /* CompletionDownloadModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */; };
+		4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E578253AF5B7009F7E22 /* MusicListViewController.m */; };
+		4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E57C253AF65C009F7E22 /* MusicTableViewCell.m */; };
+		4A94E581253B8AB6009F7E22 /* DownloadBussiness.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E580253B8AB6009F7E22 /* DownloadBussiness.m */; };
+		4A94E584253C4D8A009F7E22 /* NSError+DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E583253C4D8A009F7E22 /* NSError+DownloadManager.m */; };
+		4A94E588253C60AF009F7E22 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E587253C60AF009F7E22 /* Reachability.m */; };
 		4AA60F912538E8B200467A0B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60F902538E8B200467A0B /* AppDelegate.m */; };
 		4AA60F942538E8B200467A0B /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60F932538E8B200467A0B /* SceneDelegate.m */; };
-		4AA60F972538E8B200467A0B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60F962538E8B200467A0B /* ViewController.m */; };
-		4AA60F9A2538E8B200467A0B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4AA60F982538E8B200467A0B /* Main.storyboard */; };
 		4AA60F9C2538E8B400467A0B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4AA60F9B2538E8B400467A0B /* Assets.xcassets */; };
 		4AA60F9F2538E8B400467A0B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4AA60F9D2538E8B400467A0B /* LaunchScreen.storyboard */; };
 		4AA60FA22538E8B400467A0B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FA12538E8B400467A0B /* main.m */; };
@@ -21,6 +26,8 @@
 		4AA60FDF253901C100467A0B /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FDE253901C100467A0B /* Utils.m */; };
 		4AA60FEF253906DE00467A0B /* NSSessionDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */; };
 		4AA60FF0253906DE00467A0B /* DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FEE253906DE00467A0B /* DownloadManager.m */; };
+		C970DBCB736A3E5DEAABEFDB /* libPods-FileDownloaderTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A7B2EB35B2A9F1EAA3987 /* libPods-FileDownloaderTests.a */; };
+		D4B42EB0DE27CCFB4E5BEB56 /* libPods-FileDownloader.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E7B722F54FEE96A4310776A3 /* libPods-FileDownloader.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,14 +48,26 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0B4820ED3540F3824DF1CF33 /* Pods-FileDownloader.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader.debug.xcconfig"; path = "Target Support Files/Pods-FileDownloader/Pods-FileDownloader.debug.xcconfig"; sourceTree = "<group>"; };
+		3EF48B7FE6483395145E2062 /* libPods-FileDownloader-FileDownloaderUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FileDownloader-FileDownloaderUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		49D63245C20D3FD776038445 /* Pods-FileDownloaderTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloaderTests.release.xcconfig"; path = "Target Support Files/Pods-FileDownloaderTests/Pods-FileDownloaderTests.release.xcconfig"; sourceTree = "<group>"; };
+		4A94E573253A4278009F7E22 /* CompletionDownloadModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CompletionDownloadModel.h; sourceTree = "<group>"; };
+		4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CompletionDownloadModel.m; sourceTree = "<group>"; };
+		4A94E577253AF5B7009F7E22 /* MusicListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicListViewController.h; sourceTree = "<group>"; };
+		4A94E578253AF5B7009F7E22 /* MusicListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicListViewController.m; sourceTree = "<group>"; };
+		4A94E57B253AF65C009F7E22 /* MusicTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicTableViewCell.h; sourceTree = "<group>"; };
+		4A94E57C253AF65C009F7E22 /* MusicTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicTableViewCell.m; sourceTree = "<group>"; };
+		4A94E57F253B8AB6009F7E22 /* DownloadBussiness.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadBussiness.h; sourceTree = "<group>"; };
+		4A94E580253B8AB6009F7E22 /* DownloadBussiness.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadBussiness.m; sourceTree = "<group>"; };
+		4A94E582253C4D8A009F7E22 /* NSError+DownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+DownloadManager.h"; sourceTree = "<group>"; };
+		4A94E583253C4D8A009F7E22 /* NSError+DownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+DownloadManager.m"; sourceTree = "<group>"; };
+		4A94E586253C60AF009F7E22 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		4A94E587253C60AF009F7E22 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		4AA60F8C2538E8B200467A0B /* FileDownloader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FileDownloader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AA60F8F2538E8B200467A0B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		4AA60F902538E8B200467A0B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		4AA60F922538E8B200467A0B /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
 		4AA60F932538E8B200467A0B /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
-		4AA60F952538E8B200467A0B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		4AA60F962538E8B200467A0B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		4AA60F992538E8B200467A0B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4AA60F9B2538E8B400467A0B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4AA60F9E2538E8B400467A0B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4AA60FA02538E8B400467A0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -71,6 +90,12 @@
 		4AA60FEC253906DE00467A0B /* NSSessionDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSSessionDownloader.h; sourceTree = "<group>"; };
 		4AA60FED253906DE00467A0B /* DownloaderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloaderProtocol.h; sourceTree = "<group>"; };
 		4AA60FEE253906DE00467A0B /* DownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadManager.m; sourceTree = "<group>"; };
+		7C470E7B06ECF0F79B65FEB9 /* Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig"; path = "Target Support Files/Pods-FileDownloader-FileDownloaderUITests/Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		9F4A7B2EB35B2A9F1EAA3987 /* libPods-FileDownloaderTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FileDownloaderTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF42563FA406E8B4810F6CBF /* Pods-FileDownloader-FileDownloaderUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader-FileDownloaderUITests.release.xcconfig"; path = "Target Support Files/Pods-FileDownloader-FileDownloaderUITests/Pods-FileDownloader-FileDownloaderUITests.release.xcconfig"; sourceTree = "<group>"; };
+		D2A40ED53FF48A80E51757D8 /* Pods-FileDownloader.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader.release.xcconfig"; path = "Target Support Files/Pods-FileDownloader/Pods-FileDownloader.release.xcconfig"; sourceTree = "<group>"; };
+		D8C38AA1C1BD0F7FBCEE5B55 /* Pods-FileDownloaderTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloaderTests.debug.xcconfig"; path = "Target Support Files/Pods-FileDownloaderTests/Pods-FileDownloaderTests.debug.xcconfig"; sourceTree = "<group>"; };
+		E7B722F54FEE96A4310776A3 /* libPods-FileDownloader.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FileDownloader.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4B42EB0DE27CCFB4E5BEB56 /* libPods-FileDownloader.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C970DBCB736A3E5DEAABEFDB /* libPods-FileDownloaderTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,12 +119,49 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12B0128B09EFE48D5B3800D4 /* libPods-FileDownloader-FileDownloaderUITests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4A94E576253AF59B009F7E22 /* MusicListViewController */ = {
+			isa = PBXGroup;
+			children = (
+				4A94E577253AF5B7009F7E22 /* MusicListViewController.h */,
+				4A94E578253AF5B7009F7E22 /* MusicListViewController.m */,
+			);
+			path = MusicListViewController;
+			sourceTree = "<group>";
+		};
+		4A94E57A253AF643009F7E22 /* MusicCell */ = {
+			isa = PBXGroup;
+			children = (
+				4A94E57B253AF65C009F7E22 /* MusicTableViewCell.h */,
+				4A94E57C253AF65C009F7E22 /* MusicTableViewCell.m */,
+			);
+			path = MusicCell;
+			sourceTree = "<group>";
+		};
+		4A94E57E253B8A9D009F7E22 /* DownloadBussiness */ = {
+			isa = PBXGroup;
+			children = (
+				4A94E57F253B8AB6009F7E22 /* DownloadBussiness.h */,
+				4A94E580253B8AB6009F7E22 /* DownloadBussiness.m */,
+			);
+			path = DownloadBussiness;
+			sourceTree = "<group>";
+		};
+		4A94E585253C60A2009F7E22 /* Reachability */ = {
+			isa = PBXGroup;
+			children = (
+				4A94E586253C60AF009F7E22 /* Reachability.h */,
+				4A94E587253C60AF009F7E22 /* Reachability.m */,
+			);
+			path = Reachability;
+			sourceTree = "<group>";
+		};
 		4AA60F832538E8B200467A0B = {
 			isa = PBXGroup;
 			children = (
@@ -105,6 +169,8 @@
 				4AA60FAA2538E8B400467A0B /* FileDownloaderTests */,
 				4AA60FB52538E8B400467A0B /* FileDownloaderUITests */,
 				4AA60F8D2538E8B200467A0B /* Products */,
+				9876399460B9280FEEBEBF39 /* Pods */,
+				EBD02DC8279EBFD076115737 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -130,8 +196,8 @@
 				4AA60FE22539046F00467A0B /* ViewControllers */,
 				4AA60FE02539046500467A0B /* Views */,
 				4AA60FE8253906DE00467A0B /* DownloadManager */,
+				4A94E57E253B8A9D009F7E22 /* DownloadBussiness */,
 				4AA60FD9253901A100467A0B /* Utils */,
-				4AA60F982538E8B200467A0B /* Main.storyboard */,
 				4AA60F9B2538E8B400467A0B /* Assets.xcassets */,
 				4AA60FA02538E8B400467A0B /* Info.plist */,
 				4AA60FA12538E8B400467A0B /* main.m */,
@@ -188,6 +254,7 @@
 		4AA60FE02539046500467A0B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4A94E57A253AF643009F7E22 /* MusicCell */,
 				4AA60F9D2538E8B400467A0B /* LaunchScreen.storyboard */,
 			);
 			path = Views;
@@ -203,8 +270,7 @@
 		4AA60FE22539046F00467A0B /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				4AA60F952538E8B200467A0B /* ViewController.h */,
-				4AA60F962538E8B200467A0B /* ViewController.m */,
+				4A94E576253AF59B009F7E22 /* MusicListViewController */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -221,9 +287,12 @@
 		4AA60FE8253906DE00467A0B /* DownloadManager */ = {
 			isa = PBXGroup;
 			children = (
+				4A94E585253C60A2009F7E22 /* Reachability */,
 				4AA60FEA253906DE00467A0B /* Downloader */,
 				4AA60FE9253906DE00467A0B /* DownloadManager.h */,
 				4AA60FEE253906DE00467A0B /* DownloadManager.m */,
+				4A94E582253C4D8A009F7E22 /* NSError+DownloadManager.h */,
+				4A94E583253C4D8A009F7E22 /* NSError+DownloadManager.m */,
 			);
 			path = DownloadManager;
 			sourceTree = "<group>";
@@ -231,11 +300,36 @@
 		4AA60FEA253906DE00467A0B /* Downloader */ = {
 			isa = PBXGroup;
 			children = (
+				4AA60FED253906DE00467A0B /* DownloaderProtocol.h */,
 				4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */,
 				4AA60FEC253906DE00467A0B /* NSSessionDownloader.h */,
-				4AA60FED253906DE00467A0B /* DownloaderProtocol.h */,
+				4A94E573253A4278009F7E22 /* CompletionDownloadModel.h */,
+				4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */,
 			);
 			path = Downloader;
+			sourceTree = "<group>";
+		};
+		9876399460B9280FEEBEBF39 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0B4820ED3540F3824DF1CF33 /* Pods-FileDownloader.debug.xcconfig */,
+				D2A40ED53FF48A80E51757D8 /* Pods-FileDownloader.release.xcconfig */,
+				7C470E7B06ECF0F79B65FEB9 /* Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig */,
+				BF42563FA406E8B4810F6CBF /* Pods-FileDownloader-FileDownloaderUITests.release.xcconfig */,
+				D8C38AA1C1BD0F7FBCEE5B55 /* Pods-FileDownloaderTests.debug.xcconfig */,
+				49D63245C20D3FD776038445 /* Pods-FileDownloaderTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		EBD02DC8279EBFD076115737 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E7B722F54FEE96A4310776A3 /* libPods-FileDownloader.a */,
+				3EF48B7FE6483395145E2062 /* libPods-FileDownloader-FileDownloaderUITests.a */,
+				9F4A7B2EB35B2A9F1EAA3987 /* libPods-FileDownloaderTests.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -245,6 +339,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4AA60FBB2538E8B400467A0B /* Build configuration list for PBXNativeTarget "FileDownloader" */;
 			buildPhases = (
+				86281795D9F9B55B0872AC3D /* [CP] Check Pods Manifest.lock */,
 				4AA60F882538E8B200467A0B /* Sources */,
 				4AA60F892538E8B200467A0B /* Frameworks */,
 				4AA60F8A2538E8B200467A0B /* Resources */,
@@ -262,6 +357,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4AA60FBE2538E8B400467A0B /* Build configuration list for PBXNativeTarget "FileDownloaderTests" */;
 			buildPhases = (
+				F1D5A5FAC0960E67DA7B0CC4 /* [CP] Check Pods Manifest.lock */,
 				4AA60FA32538E8B400467A0B /* Sources */,
 				4AA60FA42538E8B400467A0B /* Frameworks */,
 				4AA60FA52538E8B400467A0B /* Resources */,
@@ -280,6 +376,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4AA60FC12538E8B400467A0B /* Build configuration list for PBXNativeTarget "FileDownloaderUITests" */;
 			buildPhases = (
+				0172A332675B06E9A9A89C92 /* [CP] Check Pods Manifest.lock */,
 				4AA60FAE2538E8B400467A0B /* Sources */,
 				4AA60FAF2538E8B400467A0B /* Frameworks */,
 				4AA60FB02538E8B400467A0B /* Resources */,
@@ -343,7 +440,6 @@
 			files = (
 				4AA60F9F2538E8B400467A0B /* LaunchScreen.storyboard in Resources */,
 				4AA60F9C2538E8B400467A0B /* Assets.xcassets in Resources */,
-				4AA60F9A2538E8B200467A0B /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -363,18 +459,92 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		0172A332675B06E9A9A89C92 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FileDownloader-FileDownloaderUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		86281795D9F9B55B0872AC3D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FileDownloader-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F1D5A5FAC0960E67DA7B0CC4 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FileDownloaderTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		4AA60F882538E8B200467A0B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AA60F972538E8B200467A0B /* ViewController.m in Sources */,
+				4A94E575253A4278009F7E22 /* CompletionDownloadModel.m in Sources */,
 				4AA60F912538E8B200467A0B /* AppDelegate.m in Sources */,
 				4AA60FA22538E8B400467A0B /* main.m in Sources */,
 				4AA60FDF253901C100467A0B /* Utils.m in Sources */,
 				4AA60FEF253906DE00467A0B /* NSSessionDownloader.m in Sources */,
+				4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */,
+				4A94E584253C4D8A009F7E22 /* NSError+DownloadManager.m in Sources */,
+				4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */,
 				4AA60FD52538FFBD00467A0B /* MusicModel.m in Sources */,
 				4AA60F942538E8B200467A0B /* SceneDelegate.m in Sources */,
+				4A94E588253C60AF009F7E22 /* Reachability.m in Sources */,
+				4A94E581253B8AB6009F7E22 /* DownloadBussiness.m in Sources */,
 				4AA60FCE2538EBC000467A0B /* DownloadModel.m in Sources */,
 				4AA60FF0253906DE00467A0B /* DownloadManager.m in Sources */,
 			);
@@ -412,14 +582,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		4AA60F982538E8B200467A0B /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4AA60F992538E8B200467A0B /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		4AA60F9D2538E8B400467A0B /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -543,9 +705,11 @@
 		};
 		4AA60FBC2538E8B400467A0B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0B4820ED3540F3824DF1CF33 /* Pods-FileDownloader.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = FileDownloader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -559,9 +723,11 @@
 		};
 		4AA60FBD2538E8B400467A0B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D2A40ED53FF48A80E51757D8 /* Pods-FileDownloader.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = FileDownloader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -575,6 +741,7 @@
 		};
 		4AA60FBF2538E8B400467A0B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D8C38AA1C1BD0F7FBCEE5B55 /* Pods-FileDownloaderTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -594,6 +761,7 @@
 		};
 		4AA60FC02538E8B400467A0B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 49D63245C20D3FD776038445 /* Pods-FileDownloaderTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -613,6 +781,7 @@
 		};
 		4AA60FC22538E8B400467A0B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7C470E7B06ECF0F79B65FEB9 /* Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = FileDownloaderUITests/Info.plist;
@@ -630,6 +799,7 @@
 		};
 		4AA60FC32538E8B400467A0B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BF42563FA406E8B4810F6CBF /* Pods-FileDownloader-FileDownloaderUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = FileDownloaderUITests/Info.plist;

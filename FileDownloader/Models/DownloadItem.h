@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol DownloadItem <NSObject>
 
 @property (nonatomic, strong) NSString *downloadURL;
+@property (nonatomic, strong) NSURL* storedLocalPath;
 
 @end
 

@@ -11,15 +11,6 @@
 
 @implementation DownloadManager
 
-+ (instancetype)sharedInstance {
-    static DownloadManager *_sharedInstance = nil;
-    static dispatch_once_t oncePredicate;
-    dispatch_once(&oncePredicate, ^{
-        _sharedInstance = [[DownloadManager alloc] init];
-    });
-    return _sharedInstance;
-}
-
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -36,25 +27,20 @@
     [self.downloader pauseDownload:item];
 }
 
-- (void)resumeDownload:(id<DownloadItem>)item {
-    [self.downloader resumeDownload:item];
+- (void)resumeDownload:(id<DownloadItem>)item returnToQueue:(nonnull dispatch_queue_t)queue completion:(nonnull downloadTaskCompletion)completionHandler {
+    [self.downloader resumeDownload:item returnToQueue:queue completion:completionHandler];
 }
 
-- (void)startDownload:(id<DownloadItem>)item {
-    [self.downloader startDownload:item];
-}
-
-- (void)networkStatusChanged:(NetworkStatus)status {
-    [self.downloader networkStatusChanged:status];
-}
-
-- (void)handleError:(NSError *)error {
-    [self.downloader handleError:error];
+- (void)startDownload:(id<DownloadItem>)item returnToQueue:(nonnull dispatch_queue_t)queue completion:(nonnull downloadTaskCompletion)completionHandler {
+    [self.downloader startDownload:item returnToQueue:queue completion:completionHandler];
 }
 
 - (void)configDownloader {
     [self.downloader configDownloader];
 }
 
+- (void)pauseAllDownloading {
+    [self.downloader pauseAllDownloading];
+}
 
 @end

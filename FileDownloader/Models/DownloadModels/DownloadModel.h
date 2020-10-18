@@ -15,6 +15,7 @@ typedef NS_ENUM (NSUInteger, DownloadStatus) {
     Finished = 1,
     Downloading,
     Pending,
+    PauseBySystem,
     Canceled,
 };
 
@@ -24,7 +25,6 @@ typedef NS_ENUM (NSUInteger, DownloadStatus) {
 @property (nonatomic) float progress;
 @property (nonatomic, strong) NSData *resumeData;
 @property (nonatomic, strong) NSURLSessionDownloadTask *task;
-@property (nonatomic, strong) NSString* storedLocalPath;
 @property (nonatomic, strong) id<DownloadItem> downloadItem;
 
 - (instancetype)initWithItem:(id<DownloadItem>)item;

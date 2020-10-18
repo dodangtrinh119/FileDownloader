@@ -11,10 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM (NSUInteger, NetworkStatus) {
-    NoInternet = -50000,
-    InternetAvailable = -50001,
-};
+typedef void(^downloadTaskCompletion)(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error);
 
 @protocol DownloaderProtocol <NSObject>
 
@@ -22,15 +19,13 @@ typedef NS_ENUM (NSUInteger, NetworkStatus) {
 
 - (void)pauseDownload:(id<DownloadItem>)item;
 
-- (void)resumeDownload:(id<DownloadItem>)item;
+- (void)resumeDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler;
 
-- (void)startDownload:(id<DownloadItem>)item;
-
-- (void)networkStatusChanged:(NetworkStatus)status;
-
-- (void)handleError:(NSError *)error;
+- (void)startDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler;
 
 - (void)configDownloader;
+
+- (void)pauseAllDownloading;
 
 @end
 

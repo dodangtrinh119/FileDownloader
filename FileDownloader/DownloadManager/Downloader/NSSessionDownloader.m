@@ -7,12 +7,27 @@
 //
 
 #import "NSSessionDownloader.h"
+#import "CompletionDownloadModel.h"
 
 @interface NSSessionDownloader ()
+
+@property (nonatomic, strong) dispatch_queue_t downloaderQueue;
+@property (nonatomic, strong) NSMutableArray *observers;
 
 @end
 
 @implementation NSSessionDownloader
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.downloaderQueue = dispatch_queue_create("downloaderQueue", DISPATCH_QUEUE_SERIAL);
+        self.observers = [[NSMutableArray alloc] init];
+        self.activeDownload = [[NSMutableDictionary alloc] init];
+        self.downloadSection = [NSURLSession sharedSession];
+    }
+    return self;
+}
 
 - (void)cancelDownload:(id<DownloadItem>)item {
     //firstly check is this  already add in queue and downloading.model
@@ -38,59 +53,89 @@
     downloadModel.downloadStatus = Pending;
 }
 
-//need handle to queue, multiple download...
-- (void)resumeDownload:(id<DownloadItem>)item {
+- (void)resumeDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler {
     DownloadModel *downloadModel = [self.activeDownload objectForKey:item.downloadURL];
     if (!downloadModel) {
         return;
     }
     NSData *resumeData = downloadModel.resumeData;
     if (resumeData) {
-        
-        downloadModel.task = [self.downloadSection downloadTaskWithResumeData:resumeData];
+        downloadModel.task = [self.downloadSection downloadTaskWithResumeData:resumeData completionHandler:completionHandler];
     } else {
         //todo: Imp url for download item;
         NSURL *url = [[NSURL alloc] initWithString:item.downloadURL];
-        downloadModel.task = [self.downloadSection downloadTaskWithURL:url];
+        downloadModel.task = [self.downloadSection downloadTaskWithURL:url completionHandler:completionHandler];
     }
     [downloadModel.task resume];
     downloadModel.downloadStatus = Downloading;
 }
 
-//need handle to queue, handle error of downloaded here....
-// used - (NSURLSessionDownloadTask *)downloadTaskWithURL:(NSURL *)url completionHandler:(void (^)(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler;
-- (void)startDownload:(id<DownloadItem>)item {
-    DownloadModel *downloadModel = [[DownloadModel alloc] initWithItem:item];
-    NSURL *url = [[NSURL alloc] initWithString:item.downloadURL];
-    downloadModel.task = [self.downloadSection downloadTaskWithURL:url];
-    
-    [downloadModel.task resume];
-    downloadModel.downloadStatus = Downloading;
-    [self.activeDownload setObject:downloadModel forKey:item.downloadURL];
-    
+- (void)startDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler {
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(self.downloaderQueue, ^{
+        
+        CompletionDownloadModel *completionModel = [[CompletionDownloadModel alloc] initWithCompletion:completionHandler andReturnQueue:queue];
+        if (weakSelf.observers.count > 0 && [self.activeDownload objectForKey:item.downloadURL]) {
+            [self.observers addObject:completionModel];
+            return;
+        } else {
+            [self.observers addObject:completionModel];
+        }
+        
+        DownloadModel *downloadModel;
+        if ([self.activeDownload objectForKey:item.downloadURL]) {
+            downloadModel = [self.activeDownload objectForKey:item.downloadURL];
+        } else {
+            downloadModel = [[DownloadModel alloc] initWithItem:item];
+            [self.activeDownload setObject:downloadModel forKey:item.downloadURL];
+        }
+        
+        downloadModel = [[DownloadModel alloc] initWithItem:item];
+        NSURL *url = [[NSURL alloc] initWithString:item.downloadURL];
+        
+        downloadModel.task = [self.downloadSection downloadTaskWithURL:url completionHandler:completionHandler];
+        [downloadModel.task resume];
+        
+        downloadModel.downloadStatus = Downloading;
+    });
 }
 
-- (void)networkStatusChanged:(NetworkStatus)status {
-    switch (status) {
-        case NoInternet:
-            //pending all downloading, and save resumed data
-            break;
-        case InternetAvailable:
-            //resume all downloading.
-            break;
-        default:
-            break;
-    }
+- (void)returnForAllTask:(NSURL*)location response:(NSURLResponse *)response error:(NSError*)error {
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(self.downloaderQueue, ^{
+        if (!weakSelf.observers && weakSelf.observers.count == 0) {
+            return;
+        }
+
+        for (NSInteger index = 0; index < weakSelf.observers.count; index++) {
+            CompletionDownloadModel *completionModel = [weakSelf.observers objectAtIndex:index];
+            downloadTaskCompletion block = completionModel.completionHandler;
+            dispatch_queue_t queue = completionModel.returnQueues;
+            if (queue && block) {
+                dispatch_async(queue, ^{
+                    block(location, response, error);
+                    [weakSelf.observers removeObjectAtIndex:index];
+                });
+            }
+        }
+    });
 }
 
-- (void)handleError:(nonnull NSError *)error {
-    //handle error here, must define error by myself.
+- (void)pauseAllDownloading {
+     for (DownloadModel *model in self.activeDownload) {
+         if (model.downloadStatus == Downloading) {
+             [model.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+                 if (resumeData) {
+                     model.resumeData = resumeData;
+                 }
+             }];
+             model.downloadStatus = PauseBySystem;
+         }
+     }
 }
 
 - (void)configDownloader {
-    
+   
 }
-
-
 
 @end
