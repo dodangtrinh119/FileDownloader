@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MusicModel.h"
+#import "DownloadModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,13 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)cellIdentifier;
 @property (strong, nonatomic) UILabel *songNameLabel;
 @property (strong, nonatomic) UILabel *artistNameLabel;
+@property (strong, nonatomic) UIView *downloadView;
 @property (strong, nonatomic) UIButton *downloadButton;
 @property (strong, nonatomic) UIButton *pauseButton;
 @property (strong, nonatomic) UIButton *cancelButton;
 @property (strong, nonatomic) UIProgressView *downloadProgressView;
 @property (weak, nonatomic) id<MusicCellDelegete> delegate;
 
-- (void)configCellWithItem:(MusicModel*)model;
+- (void)configCellWithItem:(MusicModel*)model downloadStatus:(DownloadStatus)downloadStatus;
 
 @end
 

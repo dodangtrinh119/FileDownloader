@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "DownloadManager.h"
 #import "DownloadItem.h"
+#import "DownloadModel.h"
 #import "NSError+DownloadManager.h"
 
 @protocol DownloadBussinessDelegate <NSObject>
@@ -34,11 +35,17 @@ typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullabl
 
 - (void)downloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler;
 
-- (void)resumeDownloadAndStored:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadCompletion)completionHandler;
+- (void)resumeDownloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler;
 
 - (void)saveListDownloaded;
 
+- (void)cancelDownload:(id<DownloadItem>)item;
+
+- (void)pauseDownload:(id<DownloadItem>)item;
+
 - (NSURL*)localFilePath:(NSURL *)url;
+
+- (DownloadStatus)getStatusOfModel:(id<DownloadItem>)item;
 
 @end
 

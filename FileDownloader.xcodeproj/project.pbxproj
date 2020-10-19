@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		12B0128B09EFE48D5B3800D4 /* libPods-FileDownloader-FileDownloaderUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF48B7FE6483395145E2062 /* libPods-FileDownloader-FileDownloaderUITests.a */; };
+		4A7A64BA253D93A20065AB42 /* MusicListViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7A64B9253D93A20065AB42 /* MusicListViewModel.m */; };
 		4A94E575253A4278009F7E22 /* CompletionDownloadModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */; };
 		4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E578253AF5B7009F7E22 /* MusicListViewController.m */; };
 		4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E57C253AF65C009F7E22 /* MusicTableViewCell.m */; };
@@ -51,6 +52,8 @@
 		0B4820ED3540F3824DF1CF33 /* Pods-FileDownloader.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader.debug.xcconfig"; path = "Target Support Files/Pods-FileDownloader/Pods-FileDownloader.debug.xcconfig"; sourceTree = "<group>"; };
 		3EF48B7FE6483395145E2062 /* libPods-FileDownloader-FileDownloaderUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FileDownloader-FileDownloaderUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		49D63245C20D3FD776038445 /* Pods-FileDownloaderTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloaderTests.release.xcconfig"; path = "Target Support Files/Pods-FileDownloaderTests/Pods-FileDownloaderTests.release.xcconfig"; sourceTree = "<group>"; };
+		4A7A64B8253D93A20065AB42 /* MusicListViewModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicListViewModel.h; sourceTree = "<group>"; };
+		4A7A64B9253D93A20065AB42 /* MusicListViewModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicListViewModel.m; sourceTree = "<group>"; };
 		4A94E573253A4278009F7E22 /* CompletionDownloadModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CompletionDownloadModel.h; sourceTree = "<group>"; };
 		4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CompletionDownloadModel.m; sourceTree = "<group>"; };
 		4A94E577253AF5B7009F7E22 /* MusicListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicListViewController.h; sourceTree = "<group>"; };
@@ -263,6 +266,8 @@
 		4AA60FE12539046A00467A0B /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				4A7A64B8253D93A20065AB42 /* MusicListViewModel.h */,
+				4A7A64B9253D93A20065AB42 /* MusicListViewModel.m */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -545,6 +550,7 @@
 				4AA60F942538E8B200467A0B /* SceneDelegate.m in Sources */,
 				4A94E588253C60AF009F7E22 /* Reachability.m in Sources */,
 				4A94E581253B8AB6009F7E22 /* DownloadBussiness.m in Sources */,
+				4A7A64BA253D93A20065AB42 /* MusicListViewModel.m in Sources */,
 				4AA60FCE2538EBC000467A0B /* DownloadModel.m in Sources */,
 				4AA60FF0253906DE00467A0B /* DownloadManager.m in Sources */,
 			);
@@ -716,7 +722,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = None.FileDownloader;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = FileDownloader;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -734,7 +740,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = None.FileDownloader;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = FileDownloader;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

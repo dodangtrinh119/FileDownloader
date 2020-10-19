@@ -18,6 +18,8 @@
 
 @implementation NSSessionDownloader
 
+@synthesize activeDownload;
+
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -36,7 +38,6 @@
         return;
     }
     [downloadModel.task cancel];
-    
 }
 
 - (void)pauseDownload:(id<DownloadItem>)item {
@@ -76,24 +77,26 @@
         
         CompletionDownloadModel *completionModel = [[CompletionDownloadModel alloc] initWithCompletion:completionHandler andReturnQueue:queue];
         if (weakSelf.observers.count > 0 && [self.activeDownload objectForKey:item.downloadURL]) {
-            [self.observers addObject:completionModel];
+            [weakSelf.observers addObject:completionModel];
             return;
         } else {
-            [self.observers addObject:completionModel];
+            [weakSelf.observers addObject:completionModel];
         }
         
         DownloadModel *downloadModel;
-        if ([self.activeDownload objectForKey:item.downloadURL]) {
+        if ([weakSelf.activeDownload objectForKey:item.downloadURL]) {
             downloadModel = [self.activeDownload objectForKey:item.downloadURL];
         } else {
             downloadModel = [[DownloadModel alloc] initWithItem:item];
-            [self.activeDownload setObject:downloadModel forKey:item.downloadURL];
+            [weakSelf.activeDownload setObject:downloadModel forKey:item.downloadURL];
         }
         
         downloadModel = [[DownloadModel alloc] initWithItem:item];
         NSURL *url = [[NSURL alloc] initWithString:item.downloadURL];
         
-        downloadModel.task = [self.downloadSection downloadTaskWithURL:url completionHandler:completionHandler];
+        downloadModel.task = [self.downloadSection downloadTaskWithURL:url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            [weakSelf returnForAllTask:location response:response error:error];
+        }];
         [downloadModel.task resume];
         
         downloadModel.downloadStatus = Downloading;
@@ -136,6 +139,14 @@
 
 - (void)configDownloader {
    
+}
+
+- (DownloadStatus)getStatusOfItem:(id<DownloadItem>)item {
+    DownloadModel *downloadModel = [self.activeDownload objectForKey:item.downloadURL];
+    if (downloadModel) {
+        return downloadModel.downloadStatus;
+    }
+    return Unknown;
 }
 
 @end

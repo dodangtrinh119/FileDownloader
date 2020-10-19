@@ -15,7 +15,7 @@
         NSLocalizedDescriptionKey: NSLocalizedString(message, nil),
     };
     
-    NSError *error = [NSError errorWithDomain:@"ContactPicker.ContactAdapter"
+    NSError *error = [NSError errorWithDomain:@"FileDownloader.DownloadError"
                                          code:errorCode userInfo:userInfo];
     return error;
 }

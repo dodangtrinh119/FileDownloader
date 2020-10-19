@@ -8,12 +8,15 @@
 
 #import <Foundation/Foundation.h>
 #import "DownloadItem.h"
+#import "DownloadModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void(^downloadTaskCompletion)(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error);
 
 @protocol DownloaderProtocol <NSObject>
+
+@property (nonatomic, strong) NSMutableDictionary *activeDownload;
 
 - (void)cancelDownload:(id<DownloadItem>)item;
 
@@ -26,6 +29,8 @@ typedef void(^downloadTaskCompletion)(NSURL * _Nullable location, NSURLResponse 
 - (void)configDownloader;
 
 - (void)pauseAllDownloading;
+
+- (DownloadStatus)getStatusOfItem:(id<DownloadItem>)item;
 
 @end
 

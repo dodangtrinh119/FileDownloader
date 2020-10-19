@@ -42,5 +42,8 @@
 - (void)pauseAllDownloading {
     [self.downloader pauseAllDownloading];
 }
+- (DownloadStatus)getStatusOfItem:(id<DownloadItem>)item {
+    return [self.downloader getStatusOfItem:item];
+}
 
 @end

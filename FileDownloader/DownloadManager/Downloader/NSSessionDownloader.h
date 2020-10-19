@@ -14,7 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSSessionDownloader : NSObject <DownloaderProtocol>
 
-@property (nonatomic, strong) NSMutableDictionary *activeDownload;
 @property (nonatomic, strong) NSURLSession *downloadSection;
 
 @end

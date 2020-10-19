@@ -8,14 +8,13 @@
 
 #import "MusicListViewController.h"
 #import "Masonry.h"
-#import "Utils.h"
+#import "MusicListViewModel.h"
 #import "MusicTableViewCell.h"
-#import "DownloadBussiness.h"
 #import <AVKit/AVKit.h>
 
 @interface MusicListViewController () <UITableViewDelegate, UITableViewDataSource, MusicCellDelegete>
 
-@property (nonatomic, strong) NSArray* listMusics;
+@property (nonatomic, strong) MusicListViewModel *viewModel;
 
 @end
 
@@ -23,12 +22,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-   
-    self.listMusics = [Utils createHardCodeData];
+    self.viewModel = [[MusicListViewModel alloc] init];
     [self setupView];
     [self setupLayout];
+    [self setupViewModel];
     [self.musicTableView reloadData];
-    
 }
 
 - (void)setupView {
@@ -49,41 +47,57 @@
     }];
 }
 
+- (void)setupViewModel {
+    __weak typeof(self) weakSelf = self;
+    self.viewModel.reloadData = ^{
+        [weakSelf.musicTableView reloadData];
+    };
+    
+    self.viewModel.reloadRowsAtIndex = ^(NSInteger * _Nonnull index) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.musicTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+        });
+    };
+    
+    self.viewModel.showError = ^(NSError * _Nonnull error) {
+        
+    };
+}
+
+
 - (void)playMusic:(MusicModel*)model {
-    AVPlayerViewController *playerController = [[AVPlayerViewController alloc] init];
-    [self presentViewController:playerController animated:YES completion:nil];
-    NSURL *downloadUrl = [[NSURL alloc] initWithString:model.downloadURL];
-    NSURL* url = [[DownloadBussiness sharedInstance] localFilePath:downloadUrl];
-    AVPlayer* player = [[AVPlayer alloc] initWithURL:url];
-    [playerController setPlayer:player];
-    [player play];
+    if (model.storedLocalPath) {
+        AVPlayerViewController *playerController = [[AVPlayerViewController alloc] init];
+        [self presentViewController:playerController animated:YES completion:nil];
+        AVPlayer* player = [[AVPlayer alloc] initWithURL:model.storedLocalPath];
+        [playerController setPlayer:player];
+        [player play];
+    }
 }
 
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     MusicTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MusicTableViewCell.cellIdentifier];
-    MusicModel *model = [self.listMusics objectAtIndex:indexPath.row];
+    MusicModel *model = [self.viewModel.listMusics objectAtIndex:indexPath.row];
     cell.delegate = self;
-    [cell configCellWithItem:model];
+    [cell configCellWithItem:model downloadStatus:[self.viewModel getStatusOfModel:model]];
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 80.f;
+    return 90.f;
 }
 
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.listMusics.count;
+    return self.viewModel.listMusics.count;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    MusicModel *model = [self.listMusics objectAtIndex:indexPath.row];
+    MusicModel *model = [self.viewModel.listMusics objectAtIndex:indexPath.row];
     [self playMusic:model];
 }
 
 - (void)startDownload:(MusicModel *)model {
-    [[DownloadBussiness sharedInstance] downloadAndStored:model completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
-        NSLog(@"abc");
-    }];
+    [self.viewModel startDownload:model];
 }
 
 - (void)cancelDownload:(nonnull MusicModel *)model {

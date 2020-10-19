@@ -17,6 +17,7 @@ typedef NS_ENUM (NSUInteger, DownloadStatus) {
     Pending,
     PauseBySystem,
     Canceled,
+    Unknown,
 };
 
 @interface DownloadModel : NSObject
