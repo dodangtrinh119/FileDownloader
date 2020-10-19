@@ -66,6 +66,14 @@
     return self;
 }
 
+- (void)cancelDownload:(id<DownloadItem>)item {
+    [self.downloadManager cancelDownload:item];
+}
+
+- (void)pauseDownload:(id<DownloadItem>)item {
+    [self.downloadManager pauseDownload:item];
+}
+
 - (void)resumeDownloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler {
     NSURL* downloadUrl = [[NSURL alloc] initWithString:item.downloadURL];
     NSURL* destinationUrl = [self localFilePath:downloadUrl];
@@ -116,7 +124,7 @@
             } else {
                 item.storedLocalPath = destinationUrl;
                 [weakSelf.listDownloaded addObject:item.downloadURL];
-                completionHandler(location, nil);
+                completionHandler(destinationUrl, nil);
             }
         }
     }];

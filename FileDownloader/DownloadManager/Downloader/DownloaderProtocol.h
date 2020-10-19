@@ -16,8 +16,6 @@ typedef void(^downloadTaskCompletion)(NSURL * _Nullable location, NSURLResponse 
 
 @protocol DownloaderProtocol <NSObject>
 
-@property (nonatomic, strong) NSMutableDictionary *activeDownload;
-
 - (void)cancelDownload:(id<DownloadItem>)item;
 
 - (void)pauseDownload:(id<DownloadItem>)item;

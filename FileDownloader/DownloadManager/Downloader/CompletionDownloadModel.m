@@ -10,9 +10,10 @@
 
 @implementation CompletionDownloadModel
 
-- (instancetype)initWithCompletion:(downloadTaskCompletion)completion andReturnQueue:(dispatch_queue_t)queue {
+- (instancetype)initWithSourceUrl:(NSURL*)source completion:(downloadTaskCompletion)completion andReturnQueue:(dispatch_queue_t)queue {
     self = [super init];
     if (self) {
+        self.sourceUrl = source;
         self.completionHandler = completion;
         self.returnQueues = queue;
     }

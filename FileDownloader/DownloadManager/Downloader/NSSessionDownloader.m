@@ -9,16 +9,16 @@
 #import "NSSessionDownloader.h"
 #import "CompletionDownloadModel.h"
 
-@interface NSSessionDownloader ()
+@interface NSSessionDownloader () <NSURLSessionDownloadDelegate, NSURLSessionTaskDelegate>
 
+@property (nonatomic, strong) NSMutableDictionary *activeDownload;
 @property (nonatomic, strong) dispatch_queue_t downloaderQueue;
 @property (nonatomic, strong) NSMutableArray *observers;
 
 @end
 
-@implementation NSSessionDownloader
 
-@synthesize activeDownload;
+@implementation NSSessionDownloader
 
 - (instancetype)init {
     self = [super init];
@@ -26,7 +26,8 @@
         self.downloaderQueue = dispatch_queue_create("downloaderQueue", DISPATCH_QUEUE_SERIAL);
         self.observers = [[NSMutableArray alloc] init];
         self.activeDownload = [[NSMutableDictionary alloc] init];
-        self.downloadSection = [NSURLSession sharedSession];
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"dangtrinh.downloadfile"];
+        self.downloadSection = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
     }
     return self;
 }
@@ -73,9 +74,10 @@
 
 - (void)startDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler {
     __weak typeof(self) weakSelf = self;
+    NSURL *url = [[NSURL alloc] initWithString:item.downloadURL];
     dispatch_async(self.downloaderQueue, ^{
         
-        CompletionDownloadModel *completionModel = [[CompletionDownloadModel alloc] initWithCompletion:completionHandler andReturnQueue:queue];
+        CompletionDownloadModel *completionModel = [[CompletionDownloadModel alloc] initWithSourceUrl:url completion:completionHandler andReturnQueue:queue];
         if (weakSelf.observers.count > 0 && [self.activeDownload objectForKey:item.downloadURL]) {
             [weakSelf.observers addObject:completionModel];
             return;
@@ -92,33 +94,31 @@
         }
         
         downloadModel = [[DownloadModel alloc] initWithItem:item];
-        NSURL *url = [[NSURL alloc] initWithString:item.downloadURL];
-        
-        downloadModel.task = [self.downloadSection downloadTaskWithURL:url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            [weakSelf returnForAllTask:location response:response error:error];
-        }];
+        downloadModel.task = [self.downloadSection downloadTaskWithURL:url];
+  
         [downloadModel.task resume];
         
         downloadModel.downloadStatus = Downloading;
     });
 }
 
-- (void)returnForAllTask:(NSURL*)location response:(NSURLResponse *)response error:(NSError*)error {
+- (void)returnForAllTask:(NSURL *)source storedLocation:(NSURL*)location response:(NSURLResponse *)response error:(NSError*)error {
     __weak typeof(self) weakSelf = self;
     dispatch_async(self.downloaderQueue, ^{
         if (!weakSelf.observers && weakSelf.observers.count == 0) {
             return;
         }
-
         for (NSInteger index = 0; index < weakSelf.observers.count; index++) {
             CompletionDownloadModel *completionModel = [weakSelf.observers objectAtIndex:index];
-            downloadTaskCompletion block = completionModel.completionHandler;
-            dispatch_queue_t queue = completionModel.returnQueues;
-            if (queue && block) {
-                dispatch_async(queue, ^{
-                    block(location, response, error);
-                    [weakSelf.observers removeObjectAtIndex:index];
-                });
+            if (completionModel.sourceUrl == source) {
+                downloadTaskCompletion block = completionModel.completionHandler;
+                dispatch_queue_t queue = completionModel.returnQueues;
+                if (queue && block) {
+                    dispatch_async(queue, ^{
+                        block(location, response, error);
+                        [weakSelf.observers removeObjectAtIndex:index];
+                    });
+                }
             }
         }
     });
@@ -149,4 +149,27 @@
     return Unknown;
 }
 
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    if (!error) {
+        return;
+    }
+    NSURL *sourceUrl = task.originalRequest.URL;
+    if (sourceUrl) {
+        [self returnForAllTask:sourceUrl storedLocation:nil response:nil error:error];
+    }
+    //downloadModel.task = [self.downloadSection downloadTaskWithURL:url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+     //     [weakSelf returnForAllTask:location response:response error:error];
+      //}];
+    
+}
+
+- (void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(nonnull NSURL *)location {
+    NSURL *sourceUrl = downloadTask.originalRequest.URL;
+       if (sourceUrl) {
+           [self returnForAllTask:sourceUrl storedLocation:location response:nil error:nil];
+       }
+}
+
 @end
+
+
