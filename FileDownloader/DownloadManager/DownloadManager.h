@@ -30,6 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (DownloadStatus)getStatusOfItem:(id<DownloadItem>)item;
 
+- (NSURL*)localFilePath:(NSURL *)url;
+
+- (void)setProgressUpdate:(void (^)(id<DownloadItem> item, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
+
+
+
 @end
 
 NS_ASSUME_NONNULL_END

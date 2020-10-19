@@ -33,17 +33,22 @@ typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullabl
 
 + (NSString *)storedDataKey;
 
+-(NSArray *)getListStored;
+
+- (NSURL *)getLocalStoredPathOfItem:(id<DownloadItem>)item;
+
 - (void)downloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler;
 
 - (void)resumeDownloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler;
-
-- (void)saveListDownloaded;
 
 - (void)cancelDownload:(id<DownloadItem>)item;
 
 - (void)pauseDownload:(id<DownloadItem>)item;
 
-- (NSURL*)localFilePath:(NSURL *)url;
+
+- (void)saveListDownloaded;
+
+- (void)setProgressUpdate:(void (^)(id<DownloadItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
 
 - (DownloadStatus)getStatusOfModel:(id<DownloadItem>)item;
 

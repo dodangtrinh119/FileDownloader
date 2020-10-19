@@ -49,13 +49,22 @@
 
 - (void)setupViewModel {
     __weak typeof(self) weakSelf = self;
+    [self.viewModel setObserverDownloadProgress];
+    
     self.viewModel.reloadData = ^{
         [weakSelf.musicTableView reloadData];
     };
     
-    self.viewModel.reloadRowsAtIndex = ^(NSInteger * _Nonnull index) {
+    self.viewModel.reloadRowsAtIndex = ^(NSInteger index) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf.musicTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+        });
+    };
+    
+    self.viewModel.updateProgressAtIndex = ^(NSInteger index, float progress, NSString * _Nonnull totalSize) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            MusicTableViewCell *cell = [weakSelf.musicTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
+            [cell updateProgress:progress total:totalSize];
         });
     };
     
@@ -63,7 +72,6 @@
         
     };
 }
-
 
 - (void)playMusic:(MusicModel*)model {
     if (model.storedLocalPath) {
@@ -97,19 +105,31 @@
 }
 
 - (void)startDownload:(MusicModel *)model {
+    if (!model) {
+        return;
+    }
     [self.viewModel startDownload:model];
 }
 
 - (void)cancelDownload:(nonnull MusicModel *)model {
-    
+    if (!model) {
+        return;
+    }
+    [self.viewModel cancelDownload:model];
 }
 
 - (void)pauseDownload:(nonnull MusicModel *)model {
-    
+    if (!model) {
+        return;
+    }
+    [self.viewModel pauseDownload:model];
 }
 
 - (void)resumeDownload:(nonnull MusicModel *)model {
-    
+    if (!model) {
+        return;
+    }
+    [self.viewModel resumeDownload:model];
 }
 
 @end

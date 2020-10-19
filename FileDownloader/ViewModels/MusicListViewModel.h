@@ -26,14 +26,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSArray *listMusics;
 
 @property (nonatomic, copy)void (^reloadData)(void);
-@property (nonatomic, copy)void (^updateProgressAtIndex)(NSInteger *index);
-@property (nonatomic, copy)void (^reloadRowsAtIndex)(NSInteger *index);
+@property (nonatomic, copy)void (^updateProgressAtIndex)(NSInteger index, float progress, NSString *totalSize);
+@property (nonatomic, copy)void (^reloadRowsAtIndex)(NSInteger index);
 @property (nonatomic, copy)void (^showError)(NSError *error);
 
 - (DownloadStatus)getStatusOfModel:(MusicModel*)model;
+
 - (void)startDownload:(MusicModel *)model;
 
+- (void)pauseDownload:(MusicModel *)model;
 
+- (void)resumeDownload:(MusicModel *)model;
+
+- (void)cancelDownload:(MusicModel *)model;
+
+- (void)setObserverDownloadProgress;
 
 @end
 

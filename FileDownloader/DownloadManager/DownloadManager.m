@@ -19,6 +19,14 @@
     return self;
 }
 
+- (void)setProgressUpdate:(void (^)(id<DownloadItem> item, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex {
+    self.downloader.updateProgressAtIndex = updateProgressAtIndex;
+}
+
+- (NSURL *)localFilePath:(NSURL *)url {
+    return [self.downloader localFilePath:url];
+}
+
 - (void)cancelDownload:(id<DownloadItem>)item {
     [self.downloader cancelDownload:item];
 }
@@ -42,8 +50,10 @@
 - (void)pauseAllDownloading {
     [self.downloader pauseAllDownloading];
 }
+
 - (DownloadStatus)getStatusOfItem:(id<DownloadItem>)item {
     return [self.downloader getStatusOfItem:item];
 }
+
 
 @end

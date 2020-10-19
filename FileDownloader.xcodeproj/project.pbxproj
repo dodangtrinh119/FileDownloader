@@ -306,8 +306,8 @@
 			isa = PBXGroup;
 			children = (
 				4AA60FED253906DE00467A0B /* DownloaderProtocol.h */,
-				4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */,
 				4AA60FEC253906DE00467A0B /* NSSessionDownloader.h */,
+				4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */,
 				4A94E573253A4278009F7E22 /* CompletionDownloadModel.h */,
 				4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */,
 			);

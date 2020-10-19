@@ -21,21 +21,24 @@
     self = [super init];
     if (self) {
         self.listMusics = [Utils createHardCodeData];
+        [self updateHardCodeData];
     }
     return self;
 }
 
-- (void)startDownload:(MusicModel *)model {
+- (void)updateHardCodeData {
+    NSArray *listDownloaded = [[DownloadBussiness sharedInstance] getListStored];
+    for (MusicModel *model in self.listMusics) {
+        if ([listDownloaded containsObject:model.downloadURL]) {
+            model.storedLocalPath = [[DownloadBussiness sharedInstance] getLocalStoredPathOfItem:model];
+        }
+    }
+}
+
+- (void)setObserverDownloadProgress {
     __weak typeof(self) weakSelf = self;
-    [[DownloadBussiness sharedInstance] downloadAndStored:model completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
-        if (error) {
-            weakSelf.showError(error);
-        }
-        if (location) {
-            NSInteger index = [weakSelf.listMusics indexOfObject:model];
-            [weakSelf updateLocalPathOfModel:index localStoredPath:location];
-            weakSelf.reloadRowsAtIndex(index);
-        }
+    [[DownloadBussiness sharedInstance] setProgressUpdate:^(id<DownloadItem>  _Nonnull source, int64_t byteWritten, int64_t totalByte) {
+        [weakSelf updateProgressWithSource:source currentByte:byteWritten totalByte:totalByte];
     }];
 }
 
@@ -49,15 +52,36 @@
     }
 }
 
+- (void)startDownload:(MusicModel *)model {
+    NSInteger index = [self.listMusics indexOfObject:model];
+    __weak typeof(self) weakSelf = self;
+    [[DownloadBussiness sharedInstance] downloadAndStored:model completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
+        if (error) {
+            weakSelf.showError(error);
+        }
+        if (location) {
+            NSInteger index = [weakSelf.listMusics indexOfObject:model];
+            [weakSelf updateLocalPathOfModel:index localStoredPath:location];
+            weakSelf.reloadRowsAtIndex(index);
+        }
+    }];
+    self.reloadRowsAtIndex(index);
+}
+
 - (void)cancelDownload:(nonnull MusicModel *)model {
+    NSInteger index = [self.listMusics indexOfObject:model];
     [[DownloadBussiness sharedInstance] cancelDownload:model];
+    self.reloadRowsAtIndex(index);
 }
 
 - (void)pauseDownload:(nonnull MusicModel *)model {
+    NSInteger index = [self.listMusics indexOfObject:model];
     [[DownloadBussiness sharedInstance] pauseDownload:model];
+    self.reloadRowsAtIndex(index);
 }
 
 - (void)resumeDownload:(nonnull MusicModel *)model {
+    NSInteger index = [self.listMusics indexOfObject:model];
     __weak typeof(self) weakSelf = self;
     [[DownloadBussiness sharedInstance] resumeDownloadAndStored:model completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
         if (error) {
@@ -68,6 +92,20 @@
         [weakSelf updateLocalPathOfModel:index localStoredPath:location];
         weakSelf.reloadRowsAtIndex(index);
     }];
+    self.reloadRowsAtIndex(index);
+
+}
+
+- (void)updateProgressWithSource:(MusicModel*)model currentByte:(int64_t)totalBytesWritten totalByte:(int64_t)totalBytes {
+    if (self.updateProgressAtIndex) {
+        NSInteger index = [self.listMusics indexOfObject:model];
+        float current = totalBytesWritten;
+        float total = totalBytes;
+        float progress = current / total;
+        NSString *totalString = [NSByteCountFormatter stringFromByteCount:totalBytes countStyle:NSByteCountFormatterCountStyleFile];
+        self.updateProgressAtIndex(index, progress, totalString);
+    }
+    
 }
 
 - (DownloadStatus)getStatusOfModel:(MusicModel *)model {

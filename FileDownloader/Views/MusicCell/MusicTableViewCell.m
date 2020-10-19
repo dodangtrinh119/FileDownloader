@@ -12,6 +12,7 @@
 @interface MusicTableViewCell ()
 
 @property (weak, nonatomic) MusicModel* musicModel;
+@property (nonatomic) BOOL isPaused;
 
 @end
 
@@ -31,9 +32,7 @@
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
 
-    // Configure the view for the selected state
 }
 
 - (void)setupViews {
@@ -48,9 +47,16 @@
     
     self.cancelButton = [UIButton new];
     [self.downloadView addSubview:self.cancelButton];
+    [self.cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
+    [self.cancelButton setTitleColor:UIColor.blueColor forState:UIControlStateNormal];
+    [self.cancelButton addTarget:self action:@selector(cancelDownload:) forControlEvents:UIControlEventTouchUpInside];
     
     self.pauseButton = [UIButton new];
     [self.downloadView addSubview:self.pauseButton];
+    [self.pauseButton setTitleColor:UIColor.blueColor forState:UIControlStateNormal];
+    [self.pauseButton addTarget:self action:@selector(pauseDownload:) forControlEvents:UIControlEventTouchUpInside];
+
+
     
     self.downloadButton = [UIButton new];
     [self.downloadView addSubview:self.downloadButton];
@@ -59,6 +65,7 @@
     [self.downloadButton addTarget:self action:@selector(startDownload:) forControlEvents:UIControlEventTouchUpInside];
 
     self.downloadProgressView = [UIProgressView new];
+    [self.downloadProgressView setProgress:0];
     [self.contentView addSubview:self.downloadProgressView];
     
 }
@@ -112,28 +119,45 @@
     self.musicModel = model;
     [self.songNameLabel setText:model.songName];
     [self.artistNameLabel setText:model.artistName];
+    [self.downloadProgressView setHidden:NO];
     if (model.storedLocalPath) {
         [self.downloadView setHidden:YES];
+        [self.downloadProgressView setHidden:YES];
     } else {
         switch (downloadStatus) {
             case Downloading:
                 [self.downloadButton setHidden:YES];
+                [self.downloadProgressView setHidden:NO];
+                [self.cancelButton setHidden:NO];
+                [self.pauseButton setHidden:NO];
                 [self.pauseButton setTitle:@"Pause" forState:UIControlStateNormal];
                 break;
             case Pending:
             case PauseBySystem:
                 [self.pauseButton setTitle:@"Resume" forState:UIControlStateNormal];
+                [self.downloadButton setHidden:YES];
                 [self.cancelButton setHidden:NO];
+                [self.pauseButton setHidden:NO];
+                break;
             case Finished:
+                [self.downloadProgressView setHidden:YES];
                 [self.downloadView setHidden:YES];
+                break;
             case Canceled:
                 [self.downloadButton setHidden:NO];
                 [self.cancelButton setHidden:YES];
                 [self.pauseButton setHidden:YES];
+                break;
             default:
+                [self.cancelButton setHidden:YES];
+                [self.pauseButton setHidden:YES];
                 break;
         }
     }
+}
+
+- (void)updateProgress:(float)progress total:(NSString*)totalSize {
+    [self.downloadProgressView setProgress:progress];
 }
 
 - (void)startDownload:(UIButton *)sender {
@@ -144,13 +168,20 @@
 
 - (void)pauseDownload:(UIButton *)sender {
     if (self.delegate && self.musicModel) {
-        [self.delegate pauseDownload:self.musicModel];
+        if (!self.isPaused) {
+            self.isPaused = YES;
+            [self.delegate pauseDownload:self.musicModel];
+        } else {
+            self.isPaused  = NO;
+            [self.delegate resumeDownload:self.musicModel];
+        }
     }
 }
 
 - (void)resumeDownload:(UIButton *)sender {
     if (self.delegate && self.musicModel) {
         [self.delegate resumeDownload:self.musicModel];
+
     }
 }
 

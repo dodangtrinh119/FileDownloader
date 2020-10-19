@@ -42,14 +42,13 @@
     self.listDownloaded = [[userDefaults arrayForKey:DownloadBussiness.storedDataKey] mutableCopy];
 }
 
+- (NSArray *)getListStored {
+    return self.listDownloaded;
+}
+
 - (instancetype)init {
     self = [super init];
     if (self) {
-        NSArray *URLs = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
-        if (URLs && URLs.count > 0) {
-            self.storedPath = [URLs firstObject];
-        }
-        
         self.reachability = [Reachability reachabilityForInternetConnection];
         [self.reachability startNotifier];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleNetworkChange:) name:kReachabilityChangedNotification object:nil];
@@ -66,6 +65,10 @@
     return self;
 }
 
+- (void)setProgressUpdate:(void (^)(id<DownloadItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex {
+    [self.downloadManager setProgressUpdate:updateProgressAtIndex];
+}
+
 - (void)cancelDownload:(id<DownloadItem>)item {
     [self.downloadManager cancelDownload:item];
 }
@@ -75,57 +78,44 @@
 }
 
 - (void)resumeDownloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler {
-    NSURL* downloadUrl = [[NSURL alloc] initWithString:item.downloadURL];
-    NSURL* destinationUrl = [self localFilePath:downloadUrl];
-    NSFileManager *fileManager = NSFileManager.defaultManager;
     __weak typeof(self) weakSelf = self;
     [self.downloadManager resumeDownload:item returnToQueue:dispatch_get_main_queue() completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error) {
-            completionHandler(nil, DownloadErrorByCode(UnexpectedError));
+        if (error ) {
+            completionHandler(nil, error);
         }
         if (location) {
-            NSError *saveFileError = nil;
-            [fileManager copyItemAtURL:location toURL:destinationUrl error:&saveFileError];
-            if (saveFileError) {
-                completionHandler(nil, DownloadErrorByCode(StoreLocalError));
-            } else {
-                item.storedLocalPath = location;
-                [weakSelf.listDownloaded addObject:item.downloadURL];
-                completionHandler(location, nil);
-            }
+            item.storedLocalPath = location;
+            [weakSelf.listDownloaded addObject:item.downloadURL];
+            completionHandler(location, nil);
         }
     }];
 }
 
-- (NSURL*)localFilePath:(NSURL *)url {
-    return [self.storedPath URLByAppendingPathComponent:url.lastPathComponent];
+- (NSURL *)getLocalStoredPathOfItem:(id<DownloadItem>)item {
+    NSURL* downloadUrl = [[NSURL alloc] initWithString:item.downloadURL];
+    return [self.downloadManager localFilePath:downloadUrl];
 }
 
 - (void)downloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler {
-    //check if file already downloaded and stored -> return path file in stored.
     NSURL* downloadUrl = [[NSURL alloc] initWithString:item.downloadURL];
-    NSURL* destinationUrl = [self localFilePath:downloadUrl];
-    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSURL* destinationUrl = [self.downloadManager localFilePath:downloadUrl];
+    
     if ([self.listDownloaded containsObject:item.downloadURL]) {
         completionHandler(destinationUrl, nil);
         return;
     }
+    
     //if not downloaded and stored -> go download and store it to disk.
     __weak typeof(self) weakSelf = self;
     [self.downloadManager startDownload:item returnToQueue:dispatch_get_main_queue() completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error) {
-            completionHandler(nil, DownloadErrorByCode(UnexpectedError));
+        if (error ) {
+            completionHandler(nil, error);
         }
         if (location) {
-            NSError *saveFileError = nil;
-            [fileManager copyItemAtURL:location toURL:destinationUrl error:&saveFileError];
-            if (saveFileError) {
-                completionHandler(location, DownloadErrorByCode(StoreLocalError));
-            } else {
-                item.storedLocalPath = destinationUrl;
-                [weakSelf.listDownloaded addObject:item.downloadURL];
-                completionHandler(destinationUrl, nil);
-            }
+            item.storedLocalPath = location;
+            [weakSelf.listDownloaded addObject:item.downloadURL];
+            [weakSelf saveListDownloaded];
+            completionHandler(location, nil);
         }
     }];
 }

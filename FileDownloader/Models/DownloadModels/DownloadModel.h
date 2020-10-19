@@ -13,11 +13,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM (NSUInteger, DownloadStatus) {
     Finished = 1,
-    Downloading,
-    Pending,
-    PauseBySystem,
-    Canceled,
-    Unknown,
+    Downloading = 2,
+    Pending = 3,
+    PauseBySystem = 4,
+    Canceled = 5,
+    Unknown = 6,
 };
 
 @interface DownloadModel : NSObject

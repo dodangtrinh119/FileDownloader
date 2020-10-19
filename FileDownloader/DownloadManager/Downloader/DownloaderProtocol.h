@@ -16,6 +16,8 @@ typedef void(^downloadTaskCompletion)(NSURL * _Nullable location, NSURLResponse 
 
 @protocol DownloaderProtocol <NSObject>
 
+@property (nonatomic, copy) void (^updateProgressAtIndex)(id<DownloadItem>, int64_t byteWritten, int64_t totalByte);
+
 - (void)cancelDownload:(id<DownloadItem>)item;
 
 - (void)pauseDownload:(id<DownloadItem>)item;
@@ -27,6 +29,8 @@ typedef void(^downloadTaskCompletion)(NSURL * _Nullable location, NSURLResponse 
 - (void)configDownloader;
 
 - (void)pauseAllDownloading;
+
+- (NSURL*)localFilePath:(NSURL *)url;
 
 - (DownloadStatus)getStatusOfItem:(id<DownloadItem>)item;
 

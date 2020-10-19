@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)configCellWithItem:(MusicModel*)model downloadStatus:(DownloadStatus)downloadStatus;
 
+- (void)updateProgress:(float)progress total:(NSString*)totalSize;
+
 @end
 
 NS_ASSUME_NONNULL_END
