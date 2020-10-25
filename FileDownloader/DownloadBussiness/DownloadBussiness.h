@@ -8,20 +8,21 @@
 
 #import <Foundation/Foundation.h>
 #import "DownloadManager.h"
-#import "DownloadItem.h"
-#import "DownloadModel.h"
+#import "DownloadableItem.h"
+#import "DownloadTask.h"
 #import "NSError+DownloadManager.h"
 
 @protocol DownloadBussinessDelegate <NSObject>
 
-- (void)didPausedDownloadBySystem;
+- (void)didPausedDownload;
+
+- (void)didResumeAllDownload;
 
 @end
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullable error);
-
 
 @interface DownloadBussiness : NSObject
 
@@ -35,22 +36,21 @@ typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullabl
 
 -(NSArray *)getListStored;
 
-- (NSURL *)getLocalStoredPathOfItem:(id<DownloadItem>)item;
+- (NSString *)getLocalStoredPathOfItem:(id<DownloadableItem>)item;
 
-- (void)downloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler;
+- (void)downloadAndStored:(id<DownloadableItem>)item completion:(downloadCompletion)completionHandler;
 
-- (void)resumeDownloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler;
+- (void)resumeDownloadAndStored:(id<DownloadableItem>)item completion:(downloadCompletion)completionHandler;
 
-- (void)cancelDownload:(id<DownloadItem>)item;
+- (void)cancelDownload:(id<DownloadableItem>)item;
 
-- (void)pauseDownload:(id<DownloadItem>)item;
-
+- (void)pauseDownload:(id<DownloadableItem>)item;
 
 - (void)saveListDownloaded;
 
-- (void)setProgressUpdate:(void (^)(id<DownloadItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
+- (void)setProgressUpdate:(void (^)(id<DownloadableItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
 
-- (DownloadStatus)getStatusOfModel:(id<DownloadItem>)item;
+- (DownloadStatus)getStatusOfModel:(id<DownloadableItem>)item;
 
 @end
 

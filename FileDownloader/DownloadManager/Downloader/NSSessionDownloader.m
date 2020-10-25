@@ -11,16 +11,27 @@
 #import "CompletionDownloadModel.h"
 #import "NSError+DownloadManager.h"
 
+#define RAND_FROM_TO(min, max) (min + arc4random_uniform(max - min + 1))
+
+
 @interface NSSessionDownloader () <NSURLSessionDownloadDelegate, NSURLSessionTaskDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary *activeDownload;
 @property (nonatomic, strong) dispatch_queue_t downloaderQueue;
-@property (nonatomic, strong) NSMutableArray *observers;
+@property (nonatomic, strong) NSMutableDictionary *observers;
 @property (nonatomic, strong) NSURL *storedPath;
+@property (nonatomic, assign) NSInteger maximumDownload;
+@property (nonatomic, assign) NSInteger currentDownload;
+
+@property (nonatomic, strong) NSMutableArray *highPriorityDownloadItems;
+@property (nonatomic, strong) NSMutableArray *mediumPriorityDownloadItems;
+@property (nonatomic, strong) NSMutableArray *lowPriorityDownloadItems;
 
 @end
 
 @implementation NSSessionDownloader
+
+@synthesize updateProgressAtIndex;
 
 - (instancetype)init {
     self = [super init];
@@ -30,198 +41,403 @@
             self.storedPath = [URLs firstObject];
         }
         self.downloaderQueue = dispatch_queue_create("downloaderQueue", DISPATCH_QUEUE_SERIAL);
-        self.observers = [[NSMutableArray alloc] init];
+        self.observers = [[NSMutableDictionary alloc] init];
         self.activeDownload = [[NSMutableDictionary alloc] init];
         NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"dangtrinh.downloadfile"];
-        self.downloadSection = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
+        self.downloadSession = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
+        
+        self.maximumDownload = 1;
+        self.currentDownload = 0;
+        
+        self.highPriorityDownloadItems = [[NSMutableArray alloc] init];
+        self.mediumPriorityDownloadItems = [[NSMutableArray alloc] init];
+        self.lowPriorityDownloadItems = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
-- (void)cancelDownload:(id<DownloadItem>)item {
-    //firstly check is this  already add in queue and downloading.model
-    DownloadModel *downloadModel = [self.activeDownload objectForKey:item.downloadURL];
-    if (!downloadModel && !downloadModel.task) {
-        return;
-    }
-    downloadModel.downloadStatus = Canceled;
-    [downloadModel.task cancel];
-}
-
-- (void)pauseDownload:(id<DownloadItem>)item {
-    DownloadModel *downloadModel = [self.activeDownload objectForKey:item.downloadURL];
-       if (!downloadModel && !downloadModel.task) {
-           return;
-       }
-    downloadModel.downloadStatus = Pending;
-
-    [downloadModel.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-        if (resumeData) {
-            downloadModel.resumeData = resumeData;
-        }
-    }];
-}
-
-- (void)resumeDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler {
-    DownloadModel *downloadModel = [self.activeDownload objectForKey:item.downloadURL];
-    NSURL *url = [[NSURL alloc] initWithString:item.downloadURL];
-    if (!downloadModel) {
-        [self returnForAllTask:url storedLocation:nil response:nil error:DownloadErrorByCode(UnexpectedError)];
-    }
+- (void)cancelDownload:(id<DownloadableItem>)item {
     __weak typeof(self) weakSelf = self;
     dispatch_async(self.downloaderQueue, ^{
-        CompletionDownloadModel *completionModel = [[CompletionDownloadModel alloc] initWithSourceUrl:url completion:completionHandler andReturnQueue:queue];
-        if (weakSelf.observers.count > 0 && [self.activeDownload objectForKey:item.downloadURL]) {
-            [weakSelf.observers addObject:completionModel];
+        //firstly check is this  already add in queue and downloading.model
+        NSString *keyForItem = [item.downloadURL absoluteString];
+        DownloadTask *downloadTask = [weakSelf.activeDownload objectForKey:keyForItem];
+        if (!downloadTask || !downloadTask.task) {
             return;
-        } else {
-            [weakSelf.observers addObject:completionModel];
         }
         
-        NSData *resumeData = downloadModel.resumeData;
-        if (resumeData) {
-            downloadModel.task = [self.downloadSection downloadTaskWithResumeData:resumeData];
-        } else {
-            //todo: Imp url for download item;
-            NSURL *url = [[NSURL alloc] initWithString:item.downloadURL];
-            downloadModel.task = [self.downloadSection downloadTaskWithURL:url];
+        NSMutableArray *listObserverForItem = [weakSelf.observers objectForKey:keyForItem];
+        if (listObserverForItem && listObserverForItem.count > 0) {
+            [listObserverForItem removeAllObjects];
         }
-        [downloadModel.task resume];
-        downloadModel.downloadStatus = Downloading;
+        
+        // cancel download task, update status.
+        weakSelf.currentDownload --;
+        downloadTask.downloadStatus = DownloadCanceled;
+        [downloadTask.task cancel];
+        [self downloadItemInWaitingQueue];
+    });
+}
+
+- (void)pauseDownload:(id<DownloadableItem>)item {
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(self.downloaderQueue, ^{
+        DownloadTask *downloadTask = [weakSelf.activeDownload objectForKey:[item.downloadURL absoluteString]];
+        if (!downloadTask && !downloadTask.task) {
+            return;
+        }
+        downloadTask.downloadStatus = DownloadPending;
+        weakSelf.currentDownload --;
+        [downloadTask.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+            [weakSelf downloadItemInWaitingQueue];
+            if (resumeData) {
+                downloadTask.resumeData = resumeData;
+            }
+        }];
+    });
+}
+
+- (void)resumeDownload:(id<DownloadableItem>)item
+         returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler {
+    // if validate -> check is download have resume data.
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(self.downloaderQueue, ^{
+        
+        // get download model in active download and check download status.
+        DownloadTask *downloadTask = [self.activeDownload objectForKey:[item.downloadURL absoluteString]];
+        
+        //check if same time run maximum -> add to waiting queue.
+        //if not continue process download.
+        if (![weakSelf canStartADownloadItem] && downloadTask) {
+            [weakSelf addTaskToWaitingQueue:downloadTask];
+            return;
+        }
+        
+        if (!downloadTask && completionHandler) {
+            [self returnForAllTask:item.downloadURL storedLocation:nil response:nil error:DownloadErrorByCode(UnexpectedError)];
+            return;
+        }
+        
+        downloadTask.downloadStatus = DownloadStatusDownloading;
+        NSData *resumeData = downloadTask.resumeData;
+        if (resumeData) {
+            downloadTask.task = [weakSelf.downloadSession downloadTaskWithResumeData:resumeData];
+        } else {
+            downloadTask.task = [weakSelf.downloadSession downloadTaskWithURL:item.downloadURL];
+        }
+        [downloadTask.task resume];
         
     });
     
 }
 
-- (void)startDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler {
+- (void)startDownload:(id<DownloadableItem>)item
+         withPriority:(DownloadTaskPriroity)priority
+        returnToQueue:(dispatch_queue_t)queue
+           completion:(downloadTaskCompletion)completion {
+    
+    NSURL *url = item.downloadURL;
     __weak typeof(self) weakSelf = self;
-    NSURL *url = [[NSURL alloc] initWithString:item.downloadURL];
-    DownloadModel *downloadModel;
-    if ([weakSelf.activeDownload objectForKey:item.downloadURL]) {
-        downloadModel = [self.activeDownload objectForKey:item.downloadURL];
-    } else {
-        downloadModel = [[DownloadModel alloc] initWithItem:item];
-        [weakSelf.activeDownload setObject:downloadModel forKey:item.downloadURL];
-    }
-    downloadModel.downloadStatus = Downloading;
-
     dispatch_async(self.downloaderQueue, ^{
         
-        CompletionDownloadModel *completionModel = [[CompletionDownloadModel alloc] initWithSourceUrl:url completion:completionHandler andReturnQueue:queue];
-        if (weakSelf.observers.count > 0 && [self.activeDownload objectForKey:item.downloadURL]) {
-            [weakSelf.observers addObject:completionModel];
-            return;
-        } else {
-            [weakSelf.observers addObject:completionModel];
+        //check if same time run maximum -> add to waiting queue.
+        //if not continue process download.
+        //get download task in active download
+        NSString *keyForItem = [item.downloadURL absoluteString];
+        DownloadTask *downloadTask = [weakSelf.activeDownload objectForKey:keyForItem];
+        if (!downloadTask) {
+            downloadTask = [[DownloadTask alloc] initWithItem:item];
+            [weakSelf.activeDownload setObject:downloadTask forKey:keyForItem];
         }
         
-        downloadModel.task = [self.downloadSection downloadTaskWithURL:url];
-  
-        [downloadModel.task resume];
+        if (![self isValidUrl:url]) {
+            [self returnForAllTask:downloadTask.downloadItem.downloadURL storedLocation:nil response:nil error:DownloadErrorByCode(DownloadInvalidUrl)];
+            return;
+        }
+        
+        CompletionDownloadModel *completionModel = [[CompletionDownloadModel alloc] initWithSourceUrl:url completion:completion andReturnQueue:queue];
+        NSMutableArray *listObservers = [weakSelf.observers objectForKey:keyForItem];
+        if (listObservers && listObservers.count > 0 && [weakSelf.activeDownload objectForKey:keyForItem] && downloadTask.downloadStatus == DownloadStatusDownloading ) {
+            [listObservers addObject:completionModel];
+            return;
+        } else {
+            listObservers = [[NSMutableArray alloc] initWithArray:@[completionModel]];
+            [weakSelf.observers setObject:listObservers forKey:keyForItem];
+        }
+        
+        //check if already have a task download this file -> wait for that task finished and return for all.
+        //if not -> run it.
+        if (![weakSelf canStartADownloadItem]) {
+            [self addTaskToWaitingQueue:downloadTask];
+            return;
+        }
+        
+        self.currentDownload++;
+
+        
+        downloadTask.downloadStatus = DownloadStatusDownloading;
+        
+        downloadTask.task = [weakSelf.downloadSession downloadTaskWithURL:url];
+        
+        [downloadTask.task resume];
         
     });
 }
 
+- (BOOL) isValidUrl: (NSURL*)url {
+    BOOL isValid = [url scheme] && [url host];
+    return isValid;
+}
+
 - (void)returnForAllTask:(NSURL *)source storedLocation:(NSURL*)location response:(NSURLResponse *)response error:(NSError*)error {
+    NSString *keyOfTask = [source absoluteString];
     __weak typeof(self) weakSelf = self;
-    dispatch_async(self.downloaderQueue, ^{
+    //create a dispatch_group to notfy when return to all observer -> remove it.
+    dispatch_group_t dispatchGroup = dispatch_group_create();
+    dispatch_group_async(dispatchGroup, self.downloaderQueue, ^{
+        //validate check already have a task waiting for completion.
         if (!weakSelf.observers && weakSelf.observers.count == 0) {
             return;
         }
-        for (NSInteger index = 0; index < weakSelf.observers.count; index++) {
-            CompletionDownloadModel *completionModel = [weakSelf.observers objectAtIndex:index];
-            if (completionModel.sourceUrl == source) {
+        //loop for all observer in queue -> check if task waiting for result form download with source url -> return result for all of this.
+        NSMutableArray *listObserverForItem = [weakSelf.observers objectForKey:keyOfTask];
+        if (listObserverForItem && listObserverForItem.count > 0) {
+            for (NSInteger index = 0; index < listObserverForItem.count; index++) {
+                CompletionDownloadModel *completionModel = [listObserverForItem objectAtIndex:index];
                 downloadTaskCompletion block = completionModel.completionHandler;
-                dispatch_queue_t queue = completionModel.returnQueues;
-                if (queue && block) {
-                    dispatch_async(queue, ^{
+                dispatch_queue_t queue = completionModel.returnQueue ? completionModel.returnQueue : dispatch_get_main_queue();
+                if (block) {
+                    dispatch_group_async(dispatchGroup, queue, ^{
                         block(location, response, error);
-                        [weakSelf.observers removeObjectAtIndex:index];
+                        //when return completion -> remove that observer in queue.
                     });
+                }
+            }
+        }
+    });
+    
+    dispatch_group_notify(dispatchGroup, self.downloaderQueue, ^{
+        [weakSelf.observers removeObjectForKey:keyOfTask];
+    });
+    
+}
+
+- (void)pauseAllDownloading {
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(self.downloaderQueue, ^{
+        for (NSString *key in weakSelf.activeDownload.allKeys) {
+            //When network status changed from available -> not available.
+            //Pausing all task downloading, and store resume data for resume.
+            DownloadTask *model = [weakSelf.activeDownload objectForKey:key];
+            if (model && model.downloadStatus == DownloadStatusDownloading) {
+                [model.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+                    if (resumeData) {
+                        model.resumeData = resumeData;
+                    }
+                }];
+                model.downloadStatus = DownloadPauseBySystem;
+            }
+        }
+    });
+}
+
+- (void)resumeDownloadAll {
+    //when network change from unavailable -> available:
+    //resume all task pending by system before.
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(self.downloaderQueue, ^{
+        for (NSString *key in self.activeDownload.allKeys) {
+            DownloadTask *model = [weakSelf.activeDownload objectForKey:key];
+            if (model && model.downloadStatus == DownloadPauseBySystem) {
+                model.downloadStatus = DownloadStatusDownloading;
+                NSData *resumeData = model.resumeData;
+                if (resumeData) {
+                    model.task = [weakSelf.downloadSession downloadTaskWithResumeData:resumeData];
+                } else {
+                    model.task = [weakSelf.downloadSession downloadTaskWithURL:model.downloadItem.downloadURL];
+                }
+                [model.task resume];
+            }
+        }
+    });
+}
+
+- (BOOL)canStartADownloadItem {
+    return self.currentDownload < self.maximumDownload;
+}
+
+- (void)addTaskToWaitingQueue:(DownloadTask *)task {
+    switch (task.taskPriority) {
+        case DownloadTaskPriroityLow:
+            [self.lowPriorityDownloadItems addObject:task];
+            break;
+        case DownloadTaskPriroityMedium:
+            [self.mediumPriorityDownloadItems addObject:task];
+            break;
+        case DownloadTaskPriroityHigh:
+            [self.highPriorityDownloadItems addObject:task];
+            break;
+    }
+    task.downloadStatus = DownloadWaiting;
+}
+
+- (void)configDownloader {
+    
+}
+
+- (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item {
+    NSString *keyForItem = [item.downloadURL absoluteString];
+    DownloadTask *downloadTask = [self.activeDownload objectForKey:keyForItem];
+    if (downloadTask) {
+        return downloadTask.downloadStatus;
+    }
+    return DownloadUnknown;
+}
+
+- (DownloadTask *)getDownloadTask {
+    DownloadTask *downloadTask = nil;
+    NSInteger choosen = RAND_FROM_TO(1, 10);
+    if (choosen <= 6 && self.highPriorityDownloadItems.count > 0) {
+        downloadTask = [self.highPriorityDownloadItems firstObject];
+        [self.highPriorityDownloadItems removeObjectAtIndex:0];
+        return downloadTask;
+    } else if (choosen <= 9 && self.mediumPriorityDownloadItems.count > 0) {
+        downloadTask = [self.mediumPriorityDownloadItems firstObject];
+        [self.mediumPriorityDownloadItems removeObjectAtIndex:0];
+        return downloadTask;
+    } else if (self.lowPriorityDownloadItems.count > 0) {
+        downloadTask = [self.lowPriorityDownloadItems firstObject];
+        [self.lowPriorityDownloadItems removeObjectAtIndex:0];
+        return downloadTask;
+    }
+    return [self getHighestPriorityDownloadTask];
+}
+
+- (DownloadTask*)getHighestPriorityDownloadTask {
+    
+    DownloadTask *highestPriorityDownloadItem = nil;
+    
+    highestPriorityDownloadItem = [self.highPriorityDownloadItems firstObject];
+    if (highestPriorityDownloadItem) {
+        [self.highPriorityDownloadItems removeObject:highestPriorityDownloadItem];
+        return highestPriorityDownloadItem;
+    }
+    
+    highestPriorityDownloadItem = [self.mediumPriorityDownloadItems firstObject];
+    if (highestPriorityDownloadItem) {
+        [self.mediumPriorityDownloadItems removeObject:highestPriorityDownloadItem];
+        return highestPriorityDownloadItem;
+    }
+    highestPriorityDownloadItem = [self.lowPriorityDownloadItems firstObject];
+    if (highestPriorityDownloadItem) {
+        [self.lowPriorityDownloadItems removeObject:highestPriorityDownloadItem];
+        return highestPriorityDownloadItem;
+    }
+    return nil;
+}
+
+- (void)downloadItemInWaitingQueue {
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(self.downloaderQueue, ^{
+        DownloadTask *downloadTask = [weakSelf getDownloadTask];
+        if (downloadTask) {
+            NSString *keyForTask = [downloadTask.downloadItem.downloadURL absoluteString];
+            NSMutableArray *listObserverForTask = [weakSelf.observers objectForKey:keyForTask];
+            for (CompletionDownloadModel *completionModel in listObserverForTask) {
+                DownloadStatus downloadStatus = downloadTask.downloadStatus;
+                if (downloadStatus == DownloadPending) {
+                    [weakSelf resumeDownload:downloadTask.downloadItem returnToQueue:completionModel.returnQueue completion:completionModel.completionHandler];
+                } else {
+                    [weakSelf startDownload:downloadTask.downloadItem withPriority:downloadTask.taskPriority returnToQueue:completionModel.returnQueue completion:completionModel.completionHandler];
                 }
             }
         }
     });
 }
 
-- (void)pauseAllDownloading {
-     for (DownloadModel *model in self.activeDownload) {
-         if (model.downloadStatus == Downloading) {
-             [model.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-                 if (resumeData) {
-                     model.resumeData = resumeData;
-                 }
-             }];
-             model.downloadStatus = PauseBySystem;
-         }
-     }
-}
-
-- (void)configDownloader {
-   
-}
-
-- (DownloadStatus)getStatusOfItem:(id<DownloadItem>)item {
-    DownloadModel *downloadModel = [self.activeDownload objectForKey:item.downloadURL];
-    if (downloadModel) {
-        return downloadModel.downloadStatus;
-    }
-    return Unknown;
-}
-
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    if (!error) {
-        return;
-    }
-    NSURL *sourceUrl = task.originalRequest.URL;
-    if (sourceUrl) {
-        [self returnForAllTask:sourceUrl storedLocation:nil response:nil error:DownloadErrorByCode(UnexpectedError)];
-    }
-}
-
 - (NSURL*)localFilePath:(NSURL *)url {
     return [self.storedPath URLByAppendingPathComponent:url.lastPathComponent];
 }
 
+#pragma mark - NSURLSessionDelegate:
+
 - (void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(nonnull NSURL *)location {
-    NSURL *sourceUrl = downloadTask.originalRequest.URL;
-    if (sourceUrl) {
-        if (location) {
-            NSURL* destinationUrl = [self localFilePath:sourceUrl];
-            NSFileManager *fileManager = NSFileManager.defaultManager;
-            NSError *saveFileError = nil;
-            [fileManager copyItemAtURL:location toURL:destinationUrl error:&saveFileError];
-            if (saveFileError) {
-                [self returnForAllTask:sourceUrl storedLocation:location response:nil error:DownloadErrorByCode(StoreLocalError)];
-            } else {
-                [self returnForAllTask:sourceUrl storedLocation:destinationUrl response:nil error:nil];
-            }
+    NSURL *sourceUrl = downloadTask.currentRequest.URL ? downloadTask.currentRequest.URL : downloadTask.originalRequest.URL;
+    
+    if (!sourceUrl) {
+        return;
+    }
+    self.currentDownload--;
+
+    [self downloadItemInWaitingQueue];
+    
+    //when fisnished download -> copy file from temp folder to destination folder -> return completion for all task waiting this.
+    if (location) {
+        NSString *keyOfTask = [sourceUrl absoluteString];
+        
+        DownloadTask *downloadTask = [self.activeDownload objectForKey:keyOfTask];
+        if (downloadTask) {
+            downloadTask.downloadStatus = DownloadFinished;
+        }
+        NSURL* destinationUrl = [self localFilePath:sourceUrl];
+        NSFileManager *fileManager = NSFileManager.defaultManager;
+        NSError *saveFileError = nil;
+        [fileManager copyItemAtURL:location toURL:destinationUrl error:&saveFileError];
+        if (saveFileError) {
+            downloadTask.downloadStatus = DownloadError;
+            [self returnForAllTask:sourceUrl storedLocation:nil response:nil error:DownloadErrorByCode(StoreLocalError)];
+        } else {
+            [self returnForAllTask:sourceUrl storedLocation:destinationUrl response:nil error:nil];
         }
     }
 }
 
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    if (!error || error.code == NSURLErrorCancelled) {
+        return;
+    }
+    
+    NSURL *sourceUrl = task.currentRequest.URL ? task.currentRequest.URL : task.originalRequest.URL;
+    if (!sourceUrl) {
+        return;
+    }
+    if (sourceUrl) {
+        NSString *key = [sourceUrl absoluteString];
+        DownloadTask *downloadTask = [self.activeDownload objectForKey:key];
+        downloadTask.downloadStatus = DownloadError;
+        [self returnForAllTask:sourceUrl storedLocation:nil response:nil error:DownloadErrorByCode(UnexpectedError)];
+    }
+}
+
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    //handle when app go background
     dispatch_async(dispatch_get_main_queue(), ^{
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         if (appDelegate) {
             void(^completion)(void) = appDelegate.backgroundTransferCompletionHandler;
-            appDelegate.backgroundTransferCompletionHandler = nil;
-            completion();
+            if (completion) {
+                completion();
+                appDelegate.backgroundTransferCompletionHandler = nil;
+            }
         }
     });
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
-    NSURL *sourceUrl = downloadTask.originalRequest.URL;
-    NSString *key = [sourceUrl absoluteString];
-    DownloadModel *downloadModel = [self.activeDownload objectForKey:key];
-    if (self.updateProgressAtIndex && downloadModel) {
-        self.updateProgressAtIndex(downloadModel.downloadItem, totalBytesWritten, totalBytesExpectedToWrite);
+    //get source download url
+    NSURL *sourceUrl = downloadTask.currentRequest.URL ? downloadTask.currentRequest.URL : downloadTask.originalRequest.URL;
+    
+    //check if still nil -> return
+    if (!sourceUrl) {
+        return;
     }
-
+    // get download task in active -> update progress for that task.
+    NSString *key = [sourceUrl absoluteString];
+    DownloadTask *task = [self.activeDownload objectForKey:key];
+    if (self.updateProgressAtIndex && task) {
+        self.updateProgressAtIndex(task.downloadItem, totalBytesWritten, totalBytesExpectedToWrite);
+    }
 }
-
-@synthesize updateProgressAtIndex;
 
 @end
 

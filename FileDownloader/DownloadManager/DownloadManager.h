@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "DownloaderProtocol.h"
-#import "DownloadItem.h"
+#import "DownloadableItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,25 +16,30 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, retain) id<DownloaderProtocol> downloader;
 
-- (void)cancelDownload:(id<DownloadItem>)item;
+- (void)cancelDownload:(id<DownloadableItem>)item;
 
-- (void)pauseDownload:(id<DownloadItem>)item;
+- (void)pauseDownload:(id<DownloadableItem>)item;
 
-- (void)resumeDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler;
+- (void)resumeDownload:(id<DownloadableItem>)item
+         returnToQueue:(dispatch_queue_t)queue
+            completion:(downloadTaskCompletion)completionHandler;
 
-- (void)startDownload:(id<DownloadItem>)item returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler;
+- (void)startDownload:(id<DownloadableItem>)item
+         withPriority:(DownloadTaskPriroity)priority
+        returnToQueue:(dispatch_queue_t)queue
+           completion:(downloadTaskCompletion)completionHandler;
 
 - (void)configDownloader;
 
 - (void)pauseAllDownloading;
 
-- (DownloadStatus)getStatusOfItem:(id<DownloadItem>)item;
+- (void)resumeAllDownload;
+
+- (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item;
 
 - (NSURL*)localFilePath:(NSURL *)url;
 
-- (void)setProgressUpdate:(void (^)(id<DownloadItem> item, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
-
-
+- (void)setProgressUpdate:(void (^)(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
 
 @end
 

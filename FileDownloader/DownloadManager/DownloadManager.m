@@ -19,7 +19,7 @@
     return self;
 }
 
-- (void)setProgressUpdate:(void (^)(id<DownloadItem> item, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex {
+- (void)setProgressUpdate:(void (^)(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex {
     self.downloader.updateProgressAtIndex = updateProgressAtIndex;
 }
 
@@ -27,20 +27,30 @@
     return [self.downloader localFilePath:url];
 }
 
-- (void)cancelDownload:(id<DownloadItem>)item {
+- (void)cancelDownload:(id<DownloadableItem>)item {
     [self.downloader cancelDownload:item];
 }
 
-- (void)pauseDownload:(id<DownloadItem>)item {
+- (void)pauseDownload:(id<DownloadableItem>)item {
     [self.downloader pauseDownload:item];
 }
 
-- (void)resumeDownload:(id<DownloadItem>)item returnToQueue:(nonnull dispatch_queue_t)queue completion:(nonnull downloadTaskCompletion)completionHandler {
-    [self.downloader resumeDownload:item returnToQueue:queue completion:completionHandler];
+- (void)resumeDownload:(id<DownloadableItem>)item
+         returnToQueue:(dispatch_queue_t)queue
+            completion:(downloadTaskCompletion)completionHandler {
+    [self.downloader resumeDownload:item
+                      returnToQueue:queue
+                         completion:completionHandler];
 }
 
-- (void)startDownload:(id<DownloadItem>)item returnToQueue:(nonnull dispatch_queue_t)queue completion:(nonnull downloadTaskCompletion)completionHandler {
-    [self.downloader startDownload:item returnToQueue:queue completion:completionHandler];
+- (void)startDownload:(id<DownloadableItem>)item
+         withPriority:(DownloadTaskPriroity)priority
+        returnToQueue:(dispatch_queue_t)queue
+           completion:(downloadTaskCompletion)completionHandler {
+    [self.downloader startDownload:item
+                      withPriority:priority
+                     returnToQueue:queue
+                        completion:completionHandler];
 }
 
 - (void)configDownloader {
@@ -51,9 +61,12 @@
     [self.downloader pauseAllDownloading];
 }
 
-- (DownloadStatus)getStatusOfItem:(id<DownloadItem>)item {
-    return [self.downloader getStatusOfItem:item];
+- (void)resumeAllDownload {
+    [self.downloader resumeDownloadAll];
 }
 
+- (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item {
+    return [self.downloader getStatusOfItem:item];
+}
 
 @end

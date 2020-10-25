@@ -20,7 +20,9 @@ extern NSString * const DownloadErrorDomain;
 typedef NS_ENUM (NSUInteger, DownloadErrorCode) {
     UnexpectedError = -50000,
     UnavailableNetwork = -50001,
+    MaximumDownloading = -50002,
     StoreLocalError = -5003,
+    DownloadInvalidUrl = -5004
 };
 
 @interface NSError (DownloadManager)

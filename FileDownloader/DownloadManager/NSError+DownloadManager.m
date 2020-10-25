@@ -32,6 +32,8 @@
         case StoreLocalError:
             message = @"Không thể lưu lại file đã tải!";
             break;
+        case DownloadInvalidUrl:
+            message = @"Đường dẫn đến file không chính xác, vui lòng kiểu tra lại!";
         default:
             message = @"Unknown";
             break;

@@ -7,13 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MusicModel.h"
+#import "MusicItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface Utils : NSObject
 
-+ (NSArray<MusicModel*> *)createHardCodeData;
++ (NSArray<MusicItem*> *)createHardCodeData;
 
 @end
 

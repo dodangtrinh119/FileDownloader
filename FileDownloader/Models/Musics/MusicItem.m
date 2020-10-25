@@ -6,14 +6,14 @@
 //  Copyright © 2020 Dang Trinh. All rights reserved.
 //
 
-#import "MusicModel.h"
+#import "MusicItem.h"
 
-@implementation MusicModel
+@implementation MusicItem
 
 @synthesize downloadURL;
 @synthesize storedLocalPath;
 
-- (instancetype)initWithSongName:(NSString *)name andArtist:(NSString *)artist downloadUrl:(NSString *)url {
+- (instancetype)initWithSongName:(NSString *)name andArtist:(NSString *)artist downloadUrl:(NSURL *)url {
     self = [super init];
     if (self) {
         self.downloadURL = url;

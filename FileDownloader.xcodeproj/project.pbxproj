@@ -22,8 +22,8 @@
 		4AA60FA22538E8B400467A0B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FA12538E8B400467A0B /* main.m */; };
 		4AA60FAC2538E8B400467A0B /* FileDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FAB2538E8B400467A0B /* FileDownloaderTests.m */; };
 		4AA60FB72538E8B400467A0B /* FileDownloaderUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FB62538E8B400467A0B /* FileDownloaderUITests.m */; };
-		4AA60FCE2538EBC000467A0B /* DownloadModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FCD2538EBC000467A0B /* DownloadModel.m */; };
-		4AA60FD52538FFBD00467A0B /* MusicModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FD42538FFBD00467A0B /* MusicModel.m */; };
+		4AA60FCE2538EBC000467A0B /* DownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FCD2538EBC000467A0B /* DownloadTask.m */; };
+		4AA60FD52538FFBD00467A0B /* MusicItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FD42538FFBD00467A0B /* MusicItem.m */; };
 		4AA60FDF253901C100467A0B /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FDE253901C100467A0B /* Utils.m */; };
 		4AA60FEF253906DE00467A0B /* NSSessionDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */; };
 		4AA60FF0253906DE00467A0B /* DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FEE253906DE00467A0B /* DownloadManager.m */; };
@@ -81,11 +81,11 @@
 		4AA60FB22538E8B400467A0B /* FileDownloaderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FileDownloaderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AA60FB62538E8B400467A0B /* FileDownloaderUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileDownloaderUITests.m; sourceTree = "<group>"; };
 		4AA60FB82538E8B400467A0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4AA60FCC2538EBC000467A0B /* DownloadModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadModel.h; sourceTree = "<group>"; };
-		4AA60FCD2538EBC000467A0B /* DownloadModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadModel.m; sourceTree = "<group>"; };
-		4AA60FCF2538EC7700467A0B /* DownloadItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadItem.h; sourceTree = "<group>"; };
-		4AA60FD32538FFBD00467A0B /* MusicModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicModel.h; sourceTree = "<group>"; };
-		4AA60FD42538FFBD00467A0B /* MusicModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicModel.m; sourceTree = "<group>"; };
+		4AA60FCC2538EBC000467A0B /* DownloadTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadTask.h; sourceTree = "<group>"; };
+		4AA60FCD2538EBC000467A0B /* DownloadTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadTask.m; sourceTree = "<group>"; };
+		4AA60FCF2538EC7700467A0B /* DownloadableItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadableItem.h; sourceTree = "<group>"; };
+		4AA60FD32538FFBD00467A0B /* MusicItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicItem.h; sourceTree = "<group>"; };
+		4AA60FD42538FFBD00467A0B /* MusicItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicItem.m; sourceTree = "<group>"; };
 		4AA60FDD253901C100467A0B /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		4AA60FDE253901C100467A0B /* Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Utils.m; sourceTree = "<group>"; };
 		4AA60FE9253906DE00467A0B /* DownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadManager.h; sourceTree = "<group>"; };
@@ -229,7 +229,7 @@
 		4AA60FCB2538EBA300467A0B /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				4AA60FCF2538EC7700467A0B /* DownloadItem.h */,
+				4AA60FCF2538EC7700467A0B /* DownloadableItem.h */,
 				4AA60FE4253904D000467A0B /* DownloadModels */,
 				4AA60FD22538FFAB00467A0B /* Musics */,
 			);
@@ -239,8 +239,8 @@
 		4AA60FD22538FFAB00467A0B /* Musics */ = {
 			isa = PBXGroup;
 			children = (
-				4AA60FD32538FFBD00467A0B /* MusicModel.h */,
-				4AA60FD42538FFBD00467A0B /* MusicModel.m */,
+				4AA60FD32538FFBD00467A0B /* MusicItem.h */,
+				4AA60FD42538FFBD00467A0B /* MusicItem.m */,
 			);
 			path = Musics;
 			sourceTree = "<group>";
@@ -283,8 +283,8 @@
 		4AA60FE4253904D000467A0B /* DownloadModels */ = {
 			isa = PBXGroup;
 			children = (
-				4AA60FCC2538EBC000467A0B /* DownloadModel.h */,
-				4AA60FCD2538EBC000467A0B /* DownloadModel.m */,
+				4AA60FCC2538EBC000467A0B /* DownloadTask.h */,
+				4AA60FCD2538EBC000467A0B /* DownloadTask.m */,
 			);
 			path = DownloadModels;
 			sourceTree = "<group>";
@@ -546,12 +546,12 @@
 				4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */,
 				4A94E584253C4D8A009F7E22 /* NSError+DownloadManager.m in Sources */,
 				4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */,
-				4AA60FD52538FFBD00467A0B /* MusicModel.m in Sources */,
+				4AA60FD52538FFBD00467A0B /* MusicItem.m in Sources */,
 				4AA60F942538E8B200467A0B /* SceneDelegate.m in Sources */,
 				4A94E588253C60AF009F7E22 /* Reachability.m in Sources */,
 				4A94E581253B8AB6009F7E22 /* DownloadBussiness.m in Sources */,
 				4A7A64BA253D93A20065AB42 /* MusicListViewModel.m in Sources */,
-				4AA60FCE2538EBC000467A0B /* DownloadModel.m in Sources */,
+				4AA60FCE2538EBC000467A0B /* DownloadTask.m in Sources */,
 				4AA60FF0253906DE00467A0B /* DownloadManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -715,7 +715,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = CV63UM3QZS;
 				INFOPLIST_FILE = FileDownloader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -733,7 +733,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = CV63UM3QZS;
 				INFOPLIST_FILE = FileDownloader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

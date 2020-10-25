@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import "DownloadBussiness.h"
-#import "DownloadModel.h"
-#import "MusicModel.h"
+#import "DownloadTask.h"
+#import "MusicItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,15 +30,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy)void (^reloadRowsAtIndex)(NSInteger index);
 @property (nonatomic, copy)void (^showError)(NSError *error);
 
-- (DownloadStatus)getStatusOfModel:(MusicModel*)model;
+- (DownloadStatus)getStatusOfModel:(MusicItem*)model;
 
-- (void)startDownload:(MusicModel *)model;
+- (void)startDownload:(MusicItem *)model;
 
-- (void)pauseDownload:(MusicModel *)model;
+- (void)pauseDownload:(MusicItem *)model;
 
-- (void)resumeDownload:(MusicModel *)model;
+- (void)resumeDownload:(MusicItem *)model;
 
-- (void)cancelDownload:(MusicModel *)model;
+- (void)cancelDownload:(MusicItem *)model;
 
 - (void)setObserverDownloadProgress;
 
