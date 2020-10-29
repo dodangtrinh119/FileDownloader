@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DownloadManager.h"
+#import "DownloadProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,7 +20,9 @@ extern NSString * const DownloadErrorDomain;
 typedef NS_ENUM (NSUInteger, DownloadErrorCode) {
     UnexpectedError = -50000,
     UnavailableNetwork = -50001,
+    MaximumDownloading = -50002,
     StoreLocalError = -5003,
+    DownloadInvalidUrl = -5004
 };
 
 @interface NSError (DownloadManager)
@@ -28,7 +30,7 @@ typedef NS_ENUM (NSUInteger, DownloadErrorCode) {
 + (NSError *)errorWithErrorCode:(DownloadErrorCode)errorCode;
 
 + (NSError *)errorWithErrorCode:(DownloadErrorCode)errorCode
-                                message:(NSString * __nullable)message;
+                        message:(NSString * __nullable)message;
 
 @end
 

@@ -7,33 +7,35 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MusicModel.h"
-#import "DownloadModel.h"
+#import "MusicItem.h"
+#import "DownloadTask.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol MusicCellDelegete <NSObject>
 
-- (void)cancelDownload:(MusicModel*)model;
-- (void)pauseDownload:(MusicModel*)model;
-- (void)resumeDownload:(MusicModel*)model;
-- (void)startDownload:(MusicModel*)model;
+- (void)cancelDownload:(MusicItem*)model;
+- (void)pauseDownload:(MusicItem*)model;
+- (void)resumeDownload:(MusicItem*)model;
+- (void)startDownload:(MusicItem*)model;
 
 @end
 
 @interface MusicTableViewCell : UITableViewCell
 
 + (NSString *)cellIdentifier;
+@property (strong, nonatomic) UILabel *downloadStatusLabel;
 @property (strong, nonatomic) UILabel *songNameLabel;
 @property (strong, nonatomic) UILabel *artistNameLabel;
 @property (strong, nonatomic) UIView *downloadView;
+@property (strong, nonatomic) UIView *bottomLine;
 @property (strong, nonatomic) UIButton *downloadButton;
 @property (strong, nonatomic) UIButton *pauseButton;
 @property (strong, nonatomic) UIButton *cancelButton;
 @property (strong, nonatomic) UIProgressView *downloadProgressView;
 @property (weak, nonatomic) id<MusicCellDelegete> delegate;
 
-- (void)configCellWithItem:(MusicModel*)model downloadStatus:(DownloadStatus)downloadStatus;
+- (void)configCellWithItem:(MusicItem*)model downloadStatus:(DownloadStatus)downloadStatus;
 
 - (void)updateProgress:(float)progress total:(NSString*)totalSize;
 

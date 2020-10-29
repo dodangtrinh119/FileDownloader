@@ -8,11 +8,11 @@
 
 #import "DownloadBussiness.h"
 #import "Reachability.h"
-#import "DownloadModel.h"
+#import "DownloadTask.h"
 
 @interface DownloadBussiness()
 
-@property (nonatomic, strong) NSMutableArray *listDownloaded;
+@property (nonatomic, strong) NSMutableArray *listItemDownloaded;
 @property (nonatomic, strong) Reachability* reachability;
 
 @end
@@ -34,100 +34,122 @@
 
 - (void)saveListDownloaded {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setObject:self.listDownloaded forKey:DownloadBussiness.storedDataKey];
+    [userDefaults setObject:self.listItemDownloaded forKey:DownloadBussiness.storedDataKey];
 }
 
-- (void)getListDownloaded {
+- (void)updateListDownloaded {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    self.listDownloaded = [[userDefaults arrayForKey:DownloadBussiness.storedDataKey] mutableCopy];
+    self.listItemDownloaded = [[userDefaults arrayForKey:DownloadBussiness.storedDataKey] mutableCopy];
 }
 
-- (NSArray *)getListStored {
-    return self.listDownloaded;
+- (NSArray *)getListDownloaded {
+    return self.listItemDownloaded;
 }
 
 - (instancetype)init {
     self = [super init];
     if (self) {
-        self.reachability = [Reachability reachabilityForInternetConnection];
-        [self.reachability startNotifier];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleNetworkChange:) name:kReachabilityChangedNotification object:nil];
+        // Register listen network status change
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkWasChanged:) name:kReachabilityChangedNotification object:nil];
         
         self.reachability = [Reachability reachabilityForInternetConnection];
         [self.reachability startNotifier];
         
-        [self getListDownloaded];
-        if (!self.listDownloaded) {
-            self.listDownloaded = [[NSMutableArray alloc] init];
+        //get list local stored if not init
+        [self updateListDownloaded];
+        if (!self.listItemDownloaded) {
+            self.listItemDownloaded = [[NSMutableArray alloc] init];
         }
-        self.downloadManager = [[DownloadManager alloc] init];
+        self.downloadProvider = [[DownloadProvider alloc] init];
     }
     return self;
 }
 
-- (void)setProgressUpdate:(void (^)(id<DownloadItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex {
-    [self.downloadManager setProgressUpdate:updateProgressAtIndex];
+- (void)setDownloadProgressBlockOfItem:(void (^)(id<DownloadableItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex {
+    [self.downloadProvider setDownloadProgressBlockOfItem:updateProgressAtIndex];
 }
 
-- (void)cancelDownload:(id<DownloadItem>)item {
-    [self.downloadManager cancelDownload:item];
+- (void)cancelDownloadItem:(id<DownloadableItem>)item {
+    [self.downloadProvider cancelDownloadItem:item];
 }
 
-- (void)pauseDownload:(id<DownloadItem>)item {
-    [self.downloadManager pauseDownload:item];
+- (void)pauseDownloadItem:(id<DownloadableItem>)item {
+    [self.downloadProvider pauseDownloadItem:item];
 }
 
-- (void)resumeDownloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler {
+- (void)resumeDownloadItem:(id<DownloadableItem>)item completion:(downloadCompletion)completionHandler {
     __weak typeof(self) weakSelf = self;
-    [self.downloadManager resumeDownload:item returnToQueue:dispatch_get_main_queue() completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error ) {
+    
+    // If network not alvailable return network error.
+    if ([self isNetworkAvailable] == NotReachable) {
+        if (completionHandler) {
+            completionHandler(nil, DownloadErrorByCode(UnavailableNetwork));
+        }
+        return;
+    }
+    
+    [self.downloadProvider resumeDownloadItem:item returnToQueue:dispatch_get_main_queue() completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        if (error && completionHandler) {
             completionHandler(nil, error);
         }
+        
         if (location) {
-            item.storedLocalPath = location;
-            [weakSelf.listDownloaded addObject:item.downloadURL];
-            completionHandler(location, nil);
+            item.storedLocalPath = [location absoluteString];
+            
+            if (item.storedLocalPath) {
+                [weakSelf.listItemDownloaded addObject:[item.downloadURL absoluteString]];
+            }
+            
+            if (completionHandler) {
+                completionHandler(location, nil);
+            }
         }
     }];
 }
 
-- (NSURL *)getLocalStoredPathOfItem:(id<DownloadItem>)item {
-    NSURL* downloadUrl = [[NSURL alloc] initWithString:item.downloadURL];
-    return [self.downloadManager localFilePath:downloadUrl];
-}
-
-- (void)downloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler {
-    NSURL* downloadUrl = [[NSURL alloc] initWithString:item.downloadURL];
-    NSURL* destinationUrl = [self.downloadManager localFilePath:downloadUrl];
+- (void)startDownloadItem:(id<DownloadableItem>)item withPriority:(DownloadTaskPriroity)priority completion:(downloadCompletion)completionHandler {
+    NSURL* downloadUrl = item.downloadURL;
+    NSURL* destinationUrl = [self.downloadProvider localFilePathOfUrl:downloadUrl];
+    // FIXME: Comment format + Spacing
     
-    if ([self.listDownloaded containsObject:item.downloadURL]) {
+    // check if this url already downloaded -> return it from local stored
+    if ([self.listItemDownloaded containsObject:[item.downloadURL absoluteString]] && completionHandler) {
         completionHandler(destinationUrl, nil);
+        return;
+    }
+    
+    //check network status
+    if ([self isNetworkAvailable] == NotReachable && completionHandler) {
+        completionHandler(nil, DownloadErrorByCode(UnavailableNetwork));
         return;
     }
     
     //if not downloaded and stored -> go download and store it to disk.
     __weak typeof(self) weakSelf = self;
-    [self.downloadManager startDownload:item returnToQueue:dispatch_get_main_queue() completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (error ) {
+    [self.downloadProvider startDownloadItem:item withPriority:priority returnToQueue:dispatch_get_main_queue() completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error && completionHandler) {
             completionHandler(nil, error);
         }
         if (location) {
-            item.storedLocalPath = location;
-            [weakSelf.listDownloaded addObject:item.downloadURL];
+            item.storedLocalPath = [location absoluteString];
+            [weakSelf.listItemDownloaded addObject:[item.downloadURL absoluteString]];
             [weakSelf saveListDownloaded];
-            completionHandler(location, nil);
+            if (completionHandler) {
+                completionHandler(location, nil);
+            }
         }
     }];
 }
 
-- (void)handleNetworkChange:(NSNotification *)notice {
+- (void)networkWasChanged:(NSNotification *)notice {
     NetworkStatus remoteHostStatus = [self.reachability currentReachabilityStatus];
     
     switch (remoteHostStatus) {
         case NotReachable:
-            [self.downloadManager pauseAllDownloading];
+            [self.downloadProvider pauseAllDownloading];
             if (self.delegate) {
-                [self.delegate didPausedDownloadBySystem];
+                [self.delegate didPausedDownload];
             }
             break;
         default:
@@ -135,8 +157,21 @@
     }
 }
 
-- (DownloadStatus)getStatusOfModel:(id<DownloadItem>)item {
-    return [self.downloadManager getStatusOfItem:item];
+- (BOOL)isNetworkAvailable {
+    NetworkStatus remoteHostStatus = [self.reachability currentReachabilityStatus];
+    if (remoteHostStatus == NotReachable) {
+        return NO;
+    }
+    return YES;
+}
+
+- (DownloadStatus)getStatusOfModel:(id<DownloadableItem>)item {
+    return [self.downloadProvider getStatusOfItem:item];
+}
+
+- (NSString *)getLocalStoredPathOfItem:(id<DownloadableItem>)item {
+    NSURL* downloadUrl = item.downloadURL;
+    return [[self.downloadProvider localFilePathOfUrl:downloadUrl] absoluteString];
 }
 
 @end

@@ -1,5 +1,5 @@
 //
-//  DownloadItem.h
+//  DownloadableItem.h
 //  FileDownloader
 //
 //  Created by Đăng Trình on 10/16/20.
@@ -10,10 +10,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol DownloadItem <NSObject>
+@protocol DownloadableItem <NSObject>
 
-@property (nonatomic, strong) NSString *downloadURL;
-@property (nonatomic, strong) NSURL* storedLocalPath;
+@property (nonatomic, strong) NSURL *downloadURL;
+@property (nonatomic, strong) NSString* storedLocalPath;
 
 @end
 

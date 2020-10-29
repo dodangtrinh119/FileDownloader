@@ -11,12 +11,16 @@
 @implementation NSError (DownloadManager)
 
 + (NSError *)errorWithErrorCode:(DownloadErrorCode)errorCode message:(NSString *)message {
+    
+    NSString *errorMessage = message ? message : @"Unknown Error Message";
+    
     NSDictionary *userInfo = @{
-        NSLocalizedDescriptionKey: NSLocalizedString(message, nil),
+        NSLocalizedDescriptionKey: NSLocalizedString(errorMessage, nil),
     };
     
     NSError *error = [NSError errorWithDomain:@"FileDownloader.DownloadError"
-                                         code:errorCode userInfo:userInfo];
+                                         code:errorCode
+                                     userInfo:userInfo];
     return error;
 }
 
@@ -32,6 +36,8 @@
         case StoreLocalError:
             message = @"Không thể lưu lại file đã tải!";
             break;
+        case DownloadInvalidUrl:
+            message = @"Đường dẫn đến file không chính xác, vui lòng kiểu tra lại!";
         default:
             message = @"Unknown";
             break;

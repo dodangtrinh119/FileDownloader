@@ -7,50 +7,53 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DownloadManager.h"
-#import "DownloadItem.h"
-#import "DownloadModel.h"
+#import "DownloadProvider.h"
+#import "DownloadableItem.h"
+#import "DownloadTask.h"
 #import "NSError+DownloadManager.h"
 
 @protocol DownloadBussinessDelegate <NSObject>
 
-- (void)didPausedDownloadBySystem;
+- (void)didPausedDownload;
+
+- (void)didResumeAllDownload;
 
 @end
 
-NS_ASSUME_NONNULL_BEGIN
+NS_ASSUME_NONNULL_BEGIN // <- Đem lên trên @protocol luôn
 
 typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullable error);
-
 
 @interface DownloadBussiness : NSObject
 
 @property (nonatomic, weak) id<DownloadBussinessDelegate> delegate;
-@property (nonatomic, strong) DownloadManager *downloadManager;
+@property (nonatomic, strong) DownloadProvider *downloadProvider;
 @property (nonatomic, strong) NSURL *storedPath;
 
 + (instancetype)sharedInstance;
 
 + (NSString *)storedDataKey;
 
--(NSArray *)getListStored;
+- (NSArray *)getListDownloaded;
 
-- (NSURL *)getLocalStoredPathOfItem:(id<DownloadItem>)item;
+- (NSString *)getLocalStoredPathOfItem:(id<DownloadableItem>)item;
 
-- (void)downloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler;
+- (void)startDownloadItem:(id<DownloadableItem>)item
+             withPriority:(DownloadTaskPriroity)priority
+               completion:(downloadCompletion)completionHandler;
 
-- (void)resumeDownloadAndStored:(id<DownloadItem>)item completion:(downloadCompletion)completionHandler;
+- (void)resumeDownloadItem:(id<DownloadableItem>)item
+                completion:(downloadCompletion)completionHandler;
 
-- (void)cancelDownload:(id<DownloadItem>)item;
+- (void)cancelDownloadItem:(id<DownloadableItem>)item;
 
-- (void)pauseDownload:(id<DownloadItem>)item;
-
+- (void)pauseDownloadItem:(id<DownloadableItem>)item;
 
 - (void)saveListDownloaded;
 
-- (void)setProgressUpdate:(void (^)(id<DownloadItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
+- (void)setDownloadProgressBlockOfItem:(void (^)(id<DownloadableItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
 
-- (DownloadStatus)getStatusOfModel:(id<DownloadItem>)item;
+- (DownloadStatus)getStatusOfModel:(id<DownloadableItem>)item;
 
 @end
 

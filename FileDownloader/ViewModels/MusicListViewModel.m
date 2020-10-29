@@ -9,7 +9,7 @@
 #import "MusicListViewModel.h"
 #import "Utils.h"
 
-@interface MusicListViewModel()
+@interface MusicListViewModel() <DownloadBussinessDelegate>
 
 @property (nonatomic, readwrite) NSArray *listMusics;
 
@@ -27,9 +27,9 @@
 }
 
 - (void)updateHardCodeData {
-    NSArray *listDownloaded = [[DownloadBussiness sharedInstance] getListStored];
-    for (MusicModel *model in self.listMusics) {
-        if ([listDownloaded containsObject:model.downloadURL]) {
+    NSArray *listDownloaded = [[DownloadBussiness sharedInstance] getListDownloaded];
+    for (MusicItem *model in self.listMusics) {
+        if ([listDownloaded containsObject:[model.downloadURL absoluteString]]) {
             model.storedLocalPath = [[DownloadBussiness sharedInstance] getLocalStoredPathOfItem:model];
         }
     }
@@ -37,66 +37,72 @@
 
 - (void)setObserverDownloadProgress {
     __weak typeof(self) weakSelf = self;
-    [[DownloadBussiness sharedInstance] setProgressUpdate:^(id<DownloadItem>  _Nonnull source, int64_t byteWritten, int64_t totalByte) {
+    [[DownloadBussiness sharedInstance] setDownloadProgressBlockOfItem:^(id<DownloadableItem>  _Nonnull source, int64_t byteWritten, int64_t totalByte) {
         [weakSelf updateProgressWithSource:source currentByte:byteWritten totalByte:totalByte];
     }];
+    [DownloadBussiness sharedInstance].delegate = self;
 }
 
 - (void)updateLocalPathOfModel:(NSInteger)index localStoredPath:(NSURL*)path {
     if (index >= self.listMusics.count) {
         return;
     }
-    MusicModel *model = [self.listMusics objectAtIndex:index];
+    MusicItem *model = [self.listMusics objectAtIndex:index];
     if (model) {
-        model.storedLocalPath = path;
+        model.storedLocalPath = [path absoluteString];
     }
 }
 
-- (void)startDownload:(MusicModel *)model {
+- (void)startDownload:(MusicItem *)model {
     NSInteger index = [self.listMusics indexOfObject:model];
+    NSInteger randomPriority = RAND_FROM_TO(1, 3);
     __weak typeof(self) weakSelf = self;
-    [[DownloadBussiness sharedInstance] downloadAndStored:model completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
-        if (error) {
+    [[DownloadBussiness sharedInstance] startDownloadItem:model withPriority:randomPriority completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
+        if (error && error.code != MaximumDownloading) {
             weakSelf.showError(error);
         }
         if (location) {
             NSInteger index = [weakSelf.listMusics indexOfObject:model];
             [weakSelf updateLocalPathOfModel:index localStoredPath:location];
-            weakSelf.reloadRowsAtIndex(index);
         }
+        weakSelf.reloadRowsAtIndex(index);
+
     }];
     self.reloadRowsAtIndex(index);
 }
 
-- (void)cancelDownload:(nonnull MusicModel *)model {
+- (void)cancelDownload:(nonnull MusicItem *)model {
     NSInteger index = [self.listMusics indexOfObject:model];
-    [[DownloadBussiness sharedInstance] cancelDownload:model];
+    [[DownloadBussiness sharedInstance] cancelDownloadItem:model];
     self.reloadRowsAtIndex(index);
 }
 
-- (void)pauseDownload:(nonnull MusicModel *)model {
+- (void)pauseDownload:(nonnull MusicItem *)model {
     NSInteger index = [self.listMusics indexOfObject:model];
-    [[DownloadBussiness sharedInstance] pauseDownload:model];
+    [[DownloadBussiness sharedInstance] pauseDownloadItem:model];
     self.reloadRowsAtIndex(index);
 }
 
-- (void)resumeDownload:(nonnull MusicModel *)model {
+- (void)resumeDownload:(nonnull MusicItem *)model {
     NSInteger index = [self.listMusics indexOfObject:model];
     __weak typeof(self) weakSelf = self;
-    [[DownloadBussiness sharedInstance] resumeDownloadAndStored:model completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
-        if (error) {
+    [[DownloadBussiness sharedInstance] resumeDownloadItem:model completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
+        if (error && error.code != MaximumDownloading) {
             weakSelf.showError(error);
-            return;
         }
-        NSUInteger index = [weakSelf.listMusics indexOfObject:model];
-        [weakSelf updateLocalPathOfModel:index localStoredPath:location];
+        
+        if (location) {
+            NSUInteger index = [weakSelf.listMusics indexOfObject:model];
+            [weakSelf updateLocalPathOfModel:index localStoredPath:location];
+        }
+        
         weakSelf.reloadRowsAtIndex(index);
     }];
     self.reloadRowsAtIndex(index);
 
 }
 
-- (void)updateProgressWithSource:(MusicModel*)model currentByte:(int64_t)totalBytesWritten totalByte:(int64_t)totalBytes {
+- (void)updateProgressWithSource:(MusicItem*)model currentByte:(int64_t)totalBytesWritten totalByte:(int64_t)totalBytes {
     if (self.updateProgressAtIndex) {
         NSInteger index = [self.listMusics indexOfObject:model];
         float current = totalBytesWritten;
@@ -108,8 +114,16 @@
     
 }
 
-- (DownloadStatus)getStatusOfModel:(MusicModel *)model {
+- (DownloadStatus)getStatusOfModel:(MusicItem *)model {
     return [[DownloadBussiness sharedInstance] getStatusOfModel:model];
+}
+
+- (void)didPausedDownload {
+    self.reloadData();
+}
+
+- (void)didResumeAllDownload {
+    self.reloadData();
 }
 
 @end

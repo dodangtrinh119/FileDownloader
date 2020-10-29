@@ -33,7 +33,6 @@
     self.musicTableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     self.musicTableView.delegate = self;
     self.musicTableView.dataSource = self;
-    [self.musicTableView setBackgroundColor:UIColor.blueColor];
     self.musicTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.musicTableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
     [self.musicTableView registerClass:[MusicTableViewCell class] forCellReuseIdentifier:MusicTableViewCell.cellIdentifier];
@@ -61,6 +60,20 @@
         });
     };
     
+    self.viewModel.showError = ^(NSError * _Nonnull error) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Thông báo"
+                                                                                 message:error.localizedDescription
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
+        //We add buttons to the alert controller by creating UIAlertActions:
+        UIAlertAction *actionOk = [UIAlertAction actionWithTitle:@"OK"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:nil];
+        [alertController addAction:actionOk];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf presentViewController:alertController animated:YES completion:nil];
+        });
+    };
+    
     self.viewModel.updateProgressAtIndex = ^(NSInteger index, float progress, NSString * _Nonnull totalSize) {
         dispatch_async(dispatch_get_main_queue(), ^{
             MusicTableViewCell *cell = [weakSelf.musicTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
@@ -68,16 +81,14 @@
         });
     };
     
-    self.viewModel.showError = ^(NSError * _Nonnull error) {
-        
-    };
 }
 
-- (void)playMusic:(MusicModel*)model {
+- (void)playMusic:(MusicItem*)model {
     if (model.storedLocalPath) {
         AVPlayerViewController *playerController = [[AVPlayerViewController alloc] init];
         [self presentViewController:playerController animated:YES completion:nil];
-        AVPlayer* player = [[AVPlayer alloc] initWithURL:model.storedLocalPath];
+        NSURL *localUrl = [[NSURL alloc] initWithString:model.storedLocalPath];
+        AVPlayer* player = [[AVPlayer alloc] initWithURL:localUrl];
         [playerController setPlayer:player];
         [player play];
     }
@@ -85,13 +96,17 @@
 
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     MusicTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MusicTableViewCell.cellIdentifier];
-    MusicModel *model = [self.viewModel.listMusics objectAtIndex:indexPath.row];
+    MusicItem *model = [self.viewModel.listMusics objectAtIndex:indexPath.row];
     cell.delegate = self;
     [cell configCellWithItem:model downloadStatus:[self.viewModel getStatusOfModel:model]];
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    MusicItem *model = [self.viewModel.listMusics objectAtIndex:indexPath.row];
+    if (model.storedLocalPath) {
+        return 82.f;
+    }
     return 90.f;
 }
 
@@ -100,32 +115,32 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    MusicModel *model = [self.viewModel.listMusics objectAtIndex:indexPath.row];
+    MusicItem *model = [self.viewModel.listMusics objectAtIndex:indexPath.row];
     [self playMusic:model];
 }
 
-- (void)startDownload:(MusicModel *)model {
+- (void)startDownload:(MusicItem *)model {
     if (!model) {
         return;
     }
     [self.viewModel startDownload:model];
 }
 
-- (void)cancelDownload:(nonnull MusicModel *)model {
+- (void)cancelDownload:(nonnull MusicItem *)model {
     if (!model) {
         return;
     }
     [self.viewModel cancelDownload:model];
 }
 
-- (void)pauseDownload:(nonnull MusicModel *)model {
+- (void)pauseDownload:(nonnull MusicItem *)model {
     if (!model) {
         return;
     }
     [self.viewModel pauseDownload:model];
 }
 
-- (void)resumeDownload:(nonnull MusicModel *)model {
+- (void)resumeDownload:(nonnull MusicItem *)model {
     if (!model) {
         return;
     }

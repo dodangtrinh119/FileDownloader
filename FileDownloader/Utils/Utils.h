@@ -7,13 +7,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MusicModel.h"
+#import "MusicItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+#define RAND_FROM_TO(min, max) (min + arc4random_uniform(max - min + 1))
+
 @interface Utils : NSObject
 
-+ (NSArray<MusicModel*> *)createHardCodeData;
++ (NSArray<MusicItem*> *)createHardCodeData;
 
 @end
 

@@ -14,9 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface CompletionDownloadModel : NSObject
 
 @property (nonatomic, strong) downloadTaskCompletion completionHandler;
-@property (nonatomic, strong) dispatch_queue_t returnQueues;
+@property (nonatomic, strong) dispatch_queue_t returnQueue;
 @property (nonatomic, strong) NSURL* sourceUrl;
-
 
 - (instancetype)initWithSourceUrl:(NSURL*)source completion:(downloadTaskCompletion)completion andReturnQueue:(dispatch_queue_t)queue;
 

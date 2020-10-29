@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		12B0128B09EFE48D5B3800D4 /* libPods-FileDownloader-FileDownloaderUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF48B7FE6483395145E2062 /* libPods-FileDownloader-FileDownloaderUITests.a */; };
 		4A7A64BA253D93A20065AB42 /* MusicListViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7A64B9253D93A20065AB42 /* MusicListViewModel.m */; };
+		4A7CCCA7254A24F000568B8D /* DownloadStatistics.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7CCCA6254A24F000568B8D /* DownloadStatistics.m */; };
 		4A94E575253A4278009F7E22 /* CompletionDownloadModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */; };
 		4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E578253AF5B7009F7E22 /* MusicListViewController.m */; };
 		4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E57C253AF65C009F7E22 /* MusicTableViewCell.m */; };
@@ -22,11 +23,11 @@
 		4AA60FA22538E8B400467A0B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FA12538E8B400467A0B /* main.m */; };
 		4AA60FAC2538E8B400467A0B /* FileDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FAB2538E8B400467A0B /* FileDownloaderTests.m */; };
 		4AA60FB72538E8B400467A0B /* FileDownloaderUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FB62538E8B400467A0B /* FileDownloaderUITests.m */; };
-		4AA60FCE2538EBC000467A0B /* DownloadModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FCD2538EBC000467A0B /* DownloadModel.m */; };
-		4AA60FD52538FFBD00467A0B /* MusicModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FD42538FFBD00467A0B /* MusicModel.m */; };
+		4AA60FCE2538EBC000467A0B /* DownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FCD2538EBC000467A0B /* DownloadTask.m */; };
+		4AA60FD52538FFBD00467A0B /* MusicItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FD42538FFBD00467A0B /* MusicItem.m */; };
 		4AA60FDF253901C100467A0B /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FDE253901C100467A0B /* Utils.m */; };
 		4AA60FEF253906DE00467A0B /* NSSessionDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */; };
-		4AA60FF0253906DE00467A0B /* DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FEE253906DE00467A0B /* DownloadManager.m */; };
+		4AA60FF0253906DE00467A0B /* DownloadProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FEE253906DE00467A0B /* DownloadProvider.m */; };
 		C970DBCB736A3E5DEAABEFDB /* libPods-FileDownloaderTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A7B2EB35B2A9F1EAA3987 /* libPods-FileDownloaderTests.a */; };
 		D4B42EB0DE27CCFB4E5BEB56 /* libPods-FileDownloader.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E7B722F54FEE96A4310776A3 /* libPods-FileDownloader.a */; };
 /* End PBXBuildFile section */
@@ -54,6 +55,8 @@
 		49D63245C20D3FD776038445 /* Pods-FileDownloaderTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloaderTests.release.xcconfig"; path = "Target Support Files/Pods-FileDownloaderTests/Pods-FileDownloaderTests.release.xcconfig"; sourceTree = "<group>"; };
 		4A7A64B8253D93A20065AB42 /* MusicListViewModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicListViewModel.h; sourceTree = "<group>"; };
 		4A7A64B9253D93A20065AB42 /* MusicListViewModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicListViewModel.m; sourceTree = "<group>"; };
+		4A7CCCA5254A24F000568B8D /* DownloadStatistics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadStatistics.h; sourceTree = "<group>"; };
+		4A7CCCA6254A24F000568B8D /* DownloadStatistics.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadStatistics.m; sourceTree = "<group>"; };
 		4A94E573253A4278009F7E22 /* CompletionDownloadModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CompletionDownloadModel.h; sourceTree = "<group>"; };
 		4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CompletionDownloadModel.m; sourceTree = "<group>"; };
 		4A94E577253AF5B7009F7E22 /* MusicListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicListViewController.h; sourceTree = "<group>"; };
@@ -81,18 +84,18 @@
 		4AA60FB22538E8B400467A0B /* FileDownloaderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FileDownloaderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AA60FB62538E8B400467A0B /* FileDownloaderUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileDownloaderUITests.m; sourceTree = "<group>"; };
 		4AA60FB82538E8B400467A0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4AA60FCC2538EBC000467A0B /* DownloadModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadModel.h; sourceTree = "<group>"; };
-		4AA60FCD2538EBC000467A0B /* DownloadModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadModel.m; sourceTree = "<group>"; };
-		4AA60FCF2538EC7700467A0B /* DownloadItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadItem.h; sourceTree = "<group>"; };
-		4AA60FD32538FFBD00467A0B /* MusicModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicModel.h; sourceTree = "<group>"; };
-		4AA60FD42538FFBD00467A0B /* MusicModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicModel.m; sourceTree = "<group>"; };
+		4AA60FCC2538EBC000467A0B /* DownloadTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadTask.h; sourceTree = "<group>"; };
+		4AA60FCD2538EBC000467A0B /* DownloadTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadTask.m; sourceTree = "<group>"; };
+		4AA60FCF2538EC7700467A0B /* DownloadableItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadableItem.h; sourceTree = "<group>"; };
+		4AA60FD32538FFBD00467A0B /* MusicItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicItem.h; sourceTree = "<group>"; };
+		4AA60FD42538FFBD00467A0B /* MusicItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicItem.m; sourceTree = "<group>"; };
 		4AA60FDD253901C100467A0B /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		4AA60FDE253901C100467A0B /* Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Utils.m; sourceTree = "<group>"; };
-		4AA60FE9253906DE00467A0B /* DownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadManager.h; sourceTree = "<group>"; };
+		4AA60FE9253906DE00467A0B /* DownloadProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadProvider.h; sourceTree = "<group>"; };
 		4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSSessionDownloader.m; sourceTree = "<group>"; };
 		4AA60FEC253906DE00467A0B /* NSSessionDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSSessionDownloader.h; sourceTree = "<group>"; };
 		4AA60FED253906DE00467A0B /* DownloaderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloaderProtocol.h; sourceTree = "<group>"; };
-		4AA60FEE253906DE00467A0B /* DownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadManager.m; sourceTree = "<group>"; };
+		4AA60FEE253906DE00467A0B /* DownloadProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadProvider.m; sourceTree = "<group>"; };
 		7C470E7B06ECF0F79B65FEB9 /* Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig"; path = "Target Support Files/Pods-FileDownloader-FileDownloaderUITests/Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		9F4A7B2EB35B2A9F1EAA3987 /* libPods-FileDownloaderTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FileDownloaderTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF42563FA406E8B4810F6CBF /* Pods-FileDownloader-FileDownloaderUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader-FileDownloaderUITests.release.xcconfig"; path = "Target Support Files/Pods-FileDownloader-FileDownloaderUITests/Pods-FileDownloader-FileDownloaderUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -129,6 +132,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4A7CCCA4254A24BD00568B8D /* DownloadStatistics */ = {
+			isa = PBXGroup;
+			children = (
+				4A7CCCA5254A24F000568B8D /* DownloadStatistics.h */,
+				4A7CCCA6254A24F000568B8D /* DownloadStatistics.m */,
+			);
+			path = DownloadStatistics;
+			sourceTree = "<group>";
+		};
 		4A94E576253AF59B009F7E22 /* MusicListViewController */ = {
 			isa = PBXGroup;
 			children = (
@@ -229,7 +241,7 @@
 		4AA60FCB2538EBA300467A0B /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				4AA60FCF2538EC7700467A0B /* DownloadItem.h */,
+				4AA60FCF2538EC7700467A0B /* DownloadableItem.h */,
 				4AA60FE4253904D000467A0B /* DownloadModels */,
 				4AA60FD22538FFAB00467A0B /* Musics */,
 			);
@@ -239,8 +251,8 @@
 		4AA60FD22538FFAB00467A0B /* Musics */ = {
 			isa = PBXGroup;
 			children = (
-				4AA60FD32538FFBD00467A0B /* MusicModel.h */,
-				4AA60FD42538FFBD00467A0B /* MusicModel.m */,
+				4AA60FD32538FFBD00467A0B /* MusicItem.h */,
+				4AA60FD42538FFBD00467A0B /* MusicItem.m */,
 			);
 			path = Musics;
 			sourceTree = "<group>";
@@ -283,8 +295,8 @@
 		4AA60FE4253904D000467A0B /* DownloadModels */ = {
 			isa = PBXGroup;
 			children = (
-				4AA60FCC2538EBC000467A0B /* DownloadModel.h */,
-				4AA60FCD2538EBC000467A0B /* DownloadModel.m */,
+				4AA60FCC2538EBC000467A0B /* DownloadTask.h */,
+				4AA60FCD2538EBC000467A0B /* DownloadTask.m */,
 			);
 			path = DownloadModels;
 			sourceTree = "<group>";
@@ -294,8 +306,8 @@
 			children = (
 				4A94E585253C60A2009F7E22 /* Reachability */,
 				4AA60FEA253906DE00467A0B /* Downloader */,
-				4AA60FE9253906DE00467A0B /* DownloadManager.h */,
-				4AA60FEE253906DE00467A0B /* DownloadManager.m */,
+				4AA60FE9253906DE00467A0B /* DownloadProvider.h */,
+				4AA60FEE253906DE00467A0B /* DownloadProvider.m */,
 				4A94E582253C4D8A009F7E22 /* NSError+DownloadManager.h */,
 				4A94E583253C4D8A009F7E22 /* NSError+DownloadManager.m */,
 			);
@@ -305,6 +317,7 @@
 		4AA60FEA253906DE00467A0B /* Downloader */ = {
 			isa = PBXGroup;
 			children = (
+				4A7CCCA4254A24BD00568B8D /* DownloadStatistics */,
 				4AA60FED253906DE00467A0B /* DownloaderProtocol.h */,
 				4AA60FEC253906DE00467A0B /* NSSessionDownloader.h */,
 				4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */,
@@ -546,13 +559,14 @@
 				4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */,
 				4A94E584253C4D8A009F7E22 /* NSError+DownloadManager.m in Sources */,
 				4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */,
-				4AA60FD52538FFBD00467A0B /* MusicModel.m in Sources */,
+				4AA60FD52538FFBD00467A0B /* MusicItem.m in Sources */,
 				4AA60F942538E8B200467A0B /* SceneDelegate.m in Sources */,
 				4A94E588253C60AF009F7E22 /* Reachability.m in Sources */,
 				4A94E581253B8AB6009F7E22 /* DownloadBussiness.m in Sources */,
 				4A7A64BA253D93A20065AB42 /* MusicListViewModel.m in Sources */,
-				4AA60FCE2538EBC000467A0B /* DownloadModel.m in Sources */,
-				4AA60FF0253906DE00467A0B /* DownloadManager.m in Sources */,
+				4AA60FCE2538EBC000467A0B /* DownloadTask.m in Sources */,
+				4A7CCCA7254A24F000568B8D /* DownloadStatistics.m in Sources */,
+				4AA60FF0253906DE00467A0B /* DownloadProvider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -715,7 +729,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = CV63UM3QZS;
 				INFOPLIST_FILE = FileDownloader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -733,7 +747,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = CV63UM3QZS;
 				INFOPLIST_FILE = FileDownloader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

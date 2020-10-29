@@ -15,7 +15,7 @@
     if (self) {
         self.sourceUrl = source;
         self.completionHandler = completion;
-        self.returnQueues = queue;
+        self.returnQueue = queue;
     }
     return self;
 }
