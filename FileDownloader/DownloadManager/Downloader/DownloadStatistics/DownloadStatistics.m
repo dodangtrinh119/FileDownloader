@@ -24,15 +24,15 @@
 }
 
 - (float)currentLowPriorityTaskProportion {
-    return (float)self.countLowPriorityTaskDownloaded / (float)self.totalTaskDownloaded;
+    return self.totalTaskDownloaded == 0 ? 0 : (float)self.countLowPriorityTaskDownloaded / (float)self.totalTaskDownloaded;
 }
 
 - (float)currentHighPriorityTaskProportion {
-    return (float)self.countHighPriorityTaskDownloaded / (float)self.totalTaskDownloaded;
+    return self.totalTaskDownloaded == 0 ? 0 : (float)self.countHighPriorityTaskDownloaded / (float)self.totalTaskDownloaded;
 }
 
 - (float)currentMeidumPriorityTaskProportion {
-    return (float)self.countMediumPriorityTaskDownloaded / (float)self.totalTaskDownloaded;
+    return self.totalTaskDownloaded == 0 ? 0 : (float)self.countMediumPriorityTaskDownloaded / (float)self.totalTaskDownloaded;
 }
 
 @end

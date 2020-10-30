@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DownloadBussiness.h"
+#import "DownloadManager.h"
 #import "DownloadTask.h"
 #import "MusicItem.h"
 

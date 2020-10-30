@@ -24,21 +24,21 @@
 }
 
 - (NSURL *)localFilePathOfUrl:(NSURL *)url {
-    return [self.downloader localFilePath:url];
+    return [self.downloader localFilePathOfUrl:url];
 }
 
 - (void)cancelDownloadItem:(id<DownloadableItem>)item {
-    [self.downloader cancelDownload:item];
+    [self.downloader cancelDownloadItem:item];
 }
 
 - (void)pauseDownloadItem:(id<DownloadableItem>)item {
-    [self.downloader pauseDownload:item];
+    [self.downloader pauseDownloadItem:item];
 }
 
 - (void)resumeDownloadItem:(id<DownloadableItem>)item
          returnToQueue:(dispatch_queue_t)queue
             completion:(downloadTaskCompletion)completionHandler {
-    [self.downloader resumeDownload:item
+    [self.downloader resumeDownloadItem:item
                       returnToQueue:queue
                          completion:completionHandler];
 }
@@ -47,7 +47,7 @@
          withPriority:(DownloadTaskPriroity)priority
         returnToQueue:(dispatch_queue_t)queue
            completion:(downloadTaskCompletion)completionHandler {
-    [self.downloader startDownload:item
+    [self.downloader startDownloadItem:item
                       withPriority:priority
                      returnToQueue:queue
                         completion:completionHandler];
@@ -57,12 +57,12 @@
     [self.downloader configDownloader];
 }
 
-- (void)pauseAllDownloading {
-    [self.downloader pauseAllDownloading];
+- (void)pauseAllDownloadingItem {
+    [self.downloader pauseAllDownloadingItem];
 }
 
-- (void)resumeAllDownload {
-    [self.downloader resumeDownloadAll];
+- (void)resumeAllPausingItem {
+    [self.downloader resumeAllPausingItem];
 }
 
 - (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item {

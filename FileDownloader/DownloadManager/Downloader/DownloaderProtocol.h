@@ -22,26 +22,26 @@ typedef void(^resultBlock)(BOOL isSuccess);
 
 @property (nonatomic, copy) void (^updateProgressAtIndex)(id<DownloadableItem>, int64_t byteWritten, int64_t totalByte);
 
-- (void)cancelDownload:(id<DownloadableItem>)item;
+- (void)cancelDownloadItem:(id<DownloadableItem>)item;
 
-- (void)pauseDownload:(id<DownloadableItem>)item;
+- (void)pauseDownloadItem:(id<DownloadableItem>)item;
 
-- (void)resumeDownload:(id<DownloadableItem>)item
+- (void)resumeDownloadItem:(id<DownloadableItem>)item
          returnToQueue:(dispatch_queue_t)queue
             completion:(downloadTaskCompletion)completionHandler;
 
-- (void)startDownload:(id<DownloadableItem>)item
+- (void)startDownloadItem:(id<DownloadableItem>)item
          withPriority:(DownloadTaskPriroity)priority
         returnToQueue:(dispatch_queue_t)queue
            completion:(downloadTaskCompletion)completionHandler;
 
 - (void)configDownloader;
 
-- (void)pauseAllDownloading;
+- (void)pauseAllDownloadingItem;
 
-- (void)resumeDownloadAll;
+- (void)resumeAllPausingItem;
 
-- (NSURL*)localFilePath:(NSURL *)url;
+- (NSURL*)localFilePathOfUrl:(NSURL *)url;
 
 - (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item;
 

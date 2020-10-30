@@ -1,6 +1,6 @@
 #import "SceneDelegate.h"
 #import "MusicListViewController.h"
-#import "DownloadBussiness.h"
+#import "DownloadManager.h"
 
 @interface SceneDelegate ()
 

@@ -31,9 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)configDownloader;
 
-- (void)pauseAllDownloading; // FIXME: Naming
+- (void)pauseAllDownloadingItem;
 
-- (void)resumeAllDownload; // FIXME: Naming
+- (void)resumeAllPausingItem;
 
 - (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item;
 

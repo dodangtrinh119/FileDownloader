@@ -13,7 +13,7 @@
 		4A94E575253A4278009F7E22 /* CompletionDownloadModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */; };
 		4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E578253AF5B7009F7E22 /* MusicListViewController.m */; };
 		4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E57C253AF65C009F7E22 /* MusicTableViewCell.m */; };
-		4A94E581253B8AB6009F7E22 /* DownloadBussiness.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E580253B8AB6009F7E22 /* DownloadBussiness.m */; };
+		4A94E581253B8AB6009F7E22 /* DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E580253B8AB6009F7E22 /* DownloadManager.m */; };
 		4A94E584253C4D8A009F7E22 /* NSError+DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E583253C4D8A009F7E22 /* NSError+DownloadManager.m */; };
 		4A94E588253C60AF009F7E22 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E587253C60AF009F7E22 /* Reachability.m */; };
 		4AA60F912538E8B200467A0B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60F902538E8B200467A0B /* AppDelegate.m */; };
@@ -63,8 +63,8 @@
 		4A94E578253AF5B7009F7E22 /* MusicListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicListViewController.m; sourceTree = "<group>"; };
 		4A94E57B253AF65C009F7E22 /* MusicTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicTableViewCell.h; sourceTree = "<group>"; };
 		4A94E57C253AF65C009F7E22 /* MusicTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicTableViewCell.m; sourceTree = "<group>"; };
-		4A94E57F253B8AB6009F7E22 /* DownloadBussiness.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadBussiness.h; sourceTree = "<group>"; };
-		4A94E580253B8AB6009F7E22 /* DownloadBussiness.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadBussiness.m; sourceTree = "<group>"; };
+		4A94E57F253B8AB6009F7E22 /* DownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadManager.h; sourceTree = "<group>"; };
+		4A94E580253B8AB6009F7E22 /* DownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadManager.m; sourceTree = "<group>"; };
 		4A94E582253C4D8A009F7E22 /* NSError+DownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+DownloadManager.h"; sourceTree = "<group>"; };
 		4A94E583253C4D8A009F7E22 /* NSError+DownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+DownloadManager.m"; sourceTree = "<group>"; };
 		4A94E586253C60AF009F7E22 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
@@ -162,8 +162,8 @@
 		4A94E57E253B8A9D009F7E22 /* DownloadBussiness */ = {
 			isa = PBXGroup;
 			children = (
-				4A94E57F253B8AB6009F7E22 /* DownloadBussiness.h */,
-				4A94E580253B8AB6009F7E22 /* DownloadBussiness.m */,
+				4A94E57F253B8AB6009F7E22 /* DownloadManager.h */,
+				4A94E580253B8AB6009F7E22 /* DownloadManager.m */,
 			);
 			path = DownloadBussiness;
 			sourceTree = "<group>";
@@ -562,7 +562,7 @@
 				4AA60FD52538FFBD00467A0B /* MusicItem.m in Sources */,
 				4AA60F942538E8B200467A0B /* SceneDelegate.m in Sources */,
 				4A94E588253C60AF009F7E22 /* Reachability.m in Sources */,
-				4A94E581253B8AB6009F7E22 /* DownloadBussiness.m in Sources */,
+				4A94E581253B8AB6009F7E22 /* DownloadManager.m in Sources */,
 				4A7A64BA253D93A20065AB42 /* MusicListViewModel.m in Sources */,
 				4AA60FCE2538EBC000467A0B /* DownloadTask.m in Sources */,
 				4A7CCCA7254A24F000568B8D /* DownloadStatistics.m in Sources */,
