@@ -14,7 +14,7 @@
 		4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E578253AF5B7009F7E22 /* MusicListViewController.m */; };
 		4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E57C253AF65C009F7E22 /* MusicTableViewCell.m */; };
 		4A94E581253B8AB6009F7E22 /* DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E580253B8AB6009F7E22 /* DownloadManager.m */; };
-		4A94E584253C4D8A009F7E22 /* NSError+DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E583253C4D8A009F7E22 /* NSError+DownloadManager.m */; };
+		4A94E584253C4D8A009F7E22 /* NSError+DownloadError.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E583253C4D8A009F7E22 /* NSError+DownloadError.m */; };
 		4A94E588253C60AF009F7E22 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A94E587253C60AF009F7E22 /* Reachability.m */; };
 		4AA60F912538E8B200467A0B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60F902538E8B200467A0B /* AppDelegate.m */; };
 		4AA60F942538E8B200467A0B /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60F932538E8B200467A0B /* SceneDelegate.m */; };
@@ -65,8 +65,8 @@
 		4A94E57C253AF65C009F7E22 /* MusicTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicTableViewCell.m; sourceTree = "<group>"; };
 		4A94E57F253B8AB6009F7E22 /* DownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadManager.h; sourceTree = "<group>"; };
 		4A94E580253B8AB6009F7E22 /* DownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadManager.m; sourceTree = "<group>"; };
-		4A94E582253C4D8A009F7E22 /* NSError+DownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+DownloadManager.h"; sourceTree = "<group>"; };
-		4A94E583253C4D8A009F7E22 /* NSError+DownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+DownloadManager.m"; sourceTree = "<group>"; };
+		4A94E582253C4D8A009F7E22 /* NSError+DownloadError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+DownloadError.h"; sourceTree = "<group>"; };
+		4A94E583253C4D8A009F7E22 /* NSError+DownloadError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+DownloadError.m"; sourceTree = "<group>"; };
 		4A94E586253C60AF009F7E22 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		4A94E587253C60AF009F7E22 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		4AA60F8C2538E8B200467A0B /* FileDownloader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FileDownloader.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -309,8 +309,8 @@
 				4AA60FEA253906DE00467A0B /* Downloader */,
 				4AA60FE9253906DE00467A0B /* DownloadProvider.h */,
 				4AA60FEE253906DE00467A0B /* DownloadProvider.m */,
-				4A94E582253C4D8A009F7E22 /* NSError+DownloadManager.h */,
-				4A94E583253C4D8A009F7E22 /* NSError+DownloadManager.m */,
+				4A94E582253C4D8A009F7E22 /* NSError+DownloadError.h */,
+				4A94E583253C4D8A009F7E22 /* NSError+DownloadError.m */,
 			);
 			path = DownloadManager;
 			sourceTree = "<group>";
@@ -557,7 +557,7 @@
 				4AA60FDF253901C100467A0B /* Utils.m in Sources */,
 				4AA60FEF253906DE00467A0B /* NSSessionDownloader.m in Sources */,
 				4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */,
-				4A94E584253C4D8A009F7E22 /* NSError+DownloadManager.m in Sources */,
+				4A94E584253C4D8A009F7E22 /* NSError+DownloadError.m in Sources */,
 				4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */,
 				4AA60FD52538FFBD00467A0B /* MusicItem.m in Sources */,
 				4AA60F942538E8B200467A0B /* SceneDelegate.m in Sources */,

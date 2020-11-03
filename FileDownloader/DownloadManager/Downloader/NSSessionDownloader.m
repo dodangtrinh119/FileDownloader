@@ -10,7 +10,7 @@
 #import "AppDelegate.h"
 #import "Utils.h"
 #import "CompletionDownloadModel.h"
-#import "NSError+DownloadManager.h"
+#import "NSError+DownloadError.h"
 #import "DownloadStatistics.h"
 
 @interface NSSessionDownloader () <NSURLSessionDownloadDelegate, NSURLSessionTaskDelegate>
@@ -60,7 +60,7 @@
 - (void)cancelDownloadItem:(id<DownloadableItem>)item {
     __weak typeof(self) weakSelf = self;
     dispatch_async(self.downloaderQueue, ^{
-        //firstly check is this  already add in queue and downloading.model
+        // Firstly check is this  already add in queue and downloading.model
         NSString *keyForItem = [item.downloadURL absoluteString];
         DownloadTask *downloadTask = [weakSelf.activeDownload objectForKey:keyForItem];
         if (!downloadTask || !downloadTask.task) {
@@ -100,7 +100,7 @@
 
 - (void)resumeDownloadItem:(id<DownloadableItem>)item
          returnToQueue:(dispatch_queue_t)queue completion:(downloadTaskCompletion)completionHandler {
-    // if validate -> check is download have resume data.
+    // If validate -> check is download have resume data.
     __weak typeof(self) weakSelf = self;
     dispatch_async(self.downloaderQueue, ^{
         

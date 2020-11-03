@@ -25,7 +25,7 @@ typedef NS_ENUM (NSUInteger, DownloadErrorCode) {
     DownloadInvalidUrl = -5004
 };
 
-@interface NSError (DownloadManager)
+@interface NSError (DownloadError)
 
 + (NSError *)errorWithErrorCode:(DownloadErrorCode)errorCode;
 

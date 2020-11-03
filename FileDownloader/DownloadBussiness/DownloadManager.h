@@ -10,7 +10,7 @@
 #import "DownloadProvider.h"
 #import "DownloadableItem.h"
 #import "DownloadTask.h"
-#import "NSError+DownloadManager.h"
+#import "NSError+DownloadError.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

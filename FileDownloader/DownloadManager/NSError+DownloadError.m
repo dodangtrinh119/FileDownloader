@@ -6,9 +6,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSError+DownloadManager.h"
+#import "NSError+DownloadError.h"
 
-@implementation NSError (DownloadManager)
+@implementation NSError (DownloadError)
 
 + (NSError *)errorWithErrorCode:(DownloadErrorCode)errorCode message:(NSString *)message {
     
