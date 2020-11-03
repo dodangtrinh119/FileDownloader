@@ -242,7 +242,6 @@
 			isa = PBXGroup;
 			children = (
 				4AA60FCF2538EC7700467A0B /* DownloadableItem.h */,
-				4AA60FE4253904D000467A0B /* DownloadModels */,
 				4AA60FD22538FFAB00467A0B /* Musics */,
 			);
 			path = Models;
@@ -304,6 +303,8 @@
 		4AA60FE8253906DE00467A0B /* DownloadManager */ = {
 			isa = PBXGroup;
 			children = (
+				4AA60FE4253904D000467A0B /* DownloadModels */,
+				4A7CCCA4254A24BD00568B8D /* DownloadStatistics */,
 				4A94E585253C60A2009F7E22 /* Reachability */,
 				4AA60FEA253906DE00467A0B /* Downloader */,
 				4AA60FE9253906DE00467A0B /* DownloadProvider.h */,
@@ -317,7 +318,6 @@
 		4AA60FEA253906DE00467A0B /* Downloader */ = {
 			isa = PBXGroup;
 			children = (
-				4A7CCCA4254A24BD00568B8D /* DownloadStatistics */,
 				4AA60FED253906DE00467A0B /* DownloaderProtocol.h */,
 				4AA60FEC253906DE00467A0B /* NSSessionDownloader.h */,
 				4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */,

@@ -143,8 +143,8 @@
     dispatch_async(self.downloaderQueue, ^{
         
         // Check if same time run maximum -> add to waiting queue.
-        // if not continue process download.
-        // get download task in active download
+        // If not continue process download.
+        // Get download task in active download
         NSString *keyForItem = [item.downloadURL absoluteString];
         DownloadTask *downloadTask = [weakSelf.activeDownload objectForKey:keyForItem];
         
@@ -158,6 +158,7 @@
             return;
         }
         
+        // Check if already have this url downloading -> add completion to observers.
         CompletionDownloadModel *completionModel = [[CompletionDownloadModel alloc] initWithSourceUrl:url completion:completion andReturnQueue:queue];
         NSMutableArray *listObservers = [weakSelf.observers objectForKey:keyForItem];
         if (listObservers && listObservers.count > 0 && [weakSelf.activeDownload objectForKey:keyForItem] && downloadTask.downloadStatus == DownloadStatusDownloading ) {
@@ -175,6 +176,7 @@
             return;
         }
         
+        // Start download
         weakSelf.currentDownload++;
         downloadTask.downloadStatus = DownloadStatusDownloading;
         downloadTask.task = [weakSelf.downloadSession downloadTaskWithURL:url];
@@ -405,9 +407,12 @@
     if (!sourceUrl) {
         return;
     }
+    
+    // Degree current download, and increase total downloaded item.
     self.currentDownload--;
     self.downloadStatistics.totalTaskDownloaded++;
-
+    
+    // Start download item in waiting queue.
     [self downloadItemInWaitingQueue];
     
     // When fisnished download -> copy file from temp folder to destination folder -> return completion for all task waiting this.
@@ -421,6 +426,8 @@
         NSURL* destinationUrl = [self localFilePathOfUrl:sourceUrl];
         NSFileManager *fileManager = NSFileManager.defaultManager;
         NSError *saveFileError = nil;
+        
+        // Copy temp file after downloaded to destination path and stored with right format of file.
         [fileManager copyItemAtURL:location toURL:destinationUrl error:&saveFileError];
         if (saveFileError) {
             downloadTask.downloadStatus = DownloadError;
@@ -481,6 +488,8 @@
 }
 
 @end
+
+
 
 
 
