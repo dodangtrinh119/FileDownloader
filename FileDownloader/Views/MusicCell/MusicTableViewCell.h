@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MusicItem.h"
-#import "DownloadTask.h"
+#import "NormalDownloadTask.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

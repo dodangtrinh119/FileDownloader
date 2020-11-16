@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "DownloadManager.h"
-#import "DownloadTask.h"
+#import "NormalDownloadTask.h"
 #import "MusicItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)cancelDownload:(MusicItem *)model;
 
-- (void)setObserverDownloadProgress;
+- (void)subcribleWithDownloader;
 
 @end
 

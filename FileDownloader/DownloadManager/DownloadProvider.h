@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DownloaderProtocol.h"
 #import "DownloadableItem.h"
+#import "DownloaderProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,9 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
             completion:(downloadTaskCompletion)completion;
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
-         withPriority:(DownloadTaskPriroity)priority
-        returnToQueue:(dispatch_queue_t)queue
-           completion:(downloadTaskCompletion)completionHandler;
+             withPriority:(DownloadTaskPriroity)priority
+            returnToQueue:(dispatch_queue_t)queue
+    downloadProgressBlock:(downloadProgressBlock)progressBlock
+               completion:(downloadTaskCompletion)completion
+           ;
 
 - (void)configDownloader;
 
@@ -35,12 +37,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)resumeAllPausingItem;
 
+- (void)addDownloadObserver:(id<DownloaderObserverProtocol>)downloaderObserver;
+
 - (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item;
 
 - (NSURL*)localFilePathOfUrl:(NSURL *)url;
 
-- (void)setDownloadProgressBlockOfItem:(void (^)(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
-
+- (void)addResumeDownloadItem:(id<DownloadableItem>)item
+               withResumeData:(NSData*)resumeData
+                 withPriority:(DownloadTaskPriroity)priority
+                returnToQueue:(dispatch_queue_t)queue
+        downloadProgressBlock:(downloadProgressBlock)progressBlock
+                   completion:(downloadTaskCompletion)completion;
 @end
 
 NS_ASSUME_NONNULL_END

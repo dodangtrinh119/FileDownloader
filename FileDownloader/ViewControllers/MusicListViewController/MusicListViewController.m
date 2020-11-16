@@ -10,6 +10,7 @@
 #import "Masonry.h"
 #import "MusicListViewModel.h"
 #import "MusicTableViewCell.h"
+#import "FileReader.h"
 #import <AVKit/AVKit.h>
 
 @interface MusicListViewController () <UITableViewDelegate, UITableViewDataSource, MusicCellDelegete>
@@ -27,6 +28,11 @@
     [self setupLayout];
     [self setupViewModel];
     [self.musicTableView reloadData];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.viewModel subcribleWithDownloader];
 }
 
 - (void)setupView {
@@ -48,7 +54,6 @@
 
 - (void)setupViewModel {
     __weak typeof(self) weakSelf = self;
-    [self.viewModel setObserverDownloadProgress];
     
     self.viewModel.reloadData = ^{
         [weakSelf.musicTableView reloadData];
@@ -84,6 +89,36 @@
 }
 
 - (void)playMusic:(MusicItem*)model {
+    NSURL *storedPath = nil;
+    NSArray *URLs = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask];
+    if (URLs && URLs.count > 0) {
+        storedPath = [URLs firstObject];
+    }
+    NSLog(@"Start merge all part to 1 file");
+
+    NSURL *url1 = [storedPath URLByAppendingPathComponent:@"part0.tmp"];
+
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    FileReader * reader = [[FileReader alloc] init];
+
+    for (NSInteger i = 1; i < 3; i++) {
+        NSString* fileName = [NSString stringWithFormat:@"part%ld.tmp",i];
+        NSURL *url2 = [storedPath URLByAppendingPathComponent:fileName];
+        [reader mergeFileAtPath:[url2 path] toFileAtPath:[url1 path]];
+    }
+    
+    NSURL* destinationUrl = [storedPath URLByAppendingPathComponent:@"abc.zip"];
+    NSURL* currentUrl = url1;
+    NSError *saveFileError = nil;
+    [fileManager copyItemAtURL:currentUrl toURL:destinationUrl error:&saveFileError];
+    NSLog(@"Finished merge all part to 1 file");
+    
+    //[reader readLine];
+
+    
+    
+    
+    
     if (model.storedLocalPath) {
         AVPlayerViewController *playerController = [[AVPlayerViewController alloc] init];
         [self presentViewController:playerController animated:YES completion:nil];

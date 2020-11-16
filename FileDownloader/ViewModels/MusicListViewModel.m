@@ -9,7 +9,7 @@
 #import "MusicListViewModel.h"
 #import "Utils.h"
 
-@interface MusicListViewModel() <DownloadBussinessDelegate>
+@interface MusicListViewModel() <DownloaderObserverProtocol>
 
 @property (nonatomic, readwrite) NSArray *listMusics;
 
@@ -27,7 +27,7 @@
 }
 
 - (void)updateHardCodeData {
-    NSArray *listDownloaded = [[DownloadManager sharedInstance] getListDownloaded];
+    NSArray *listDownloaded = [[DownloadManager sharedInstance] getListItemDownloaded];
     for (MusicItem *model in self.listMusics) {
         if ([listDownloaded containsObject:[model.downloadURL absoluteString]]) {
             model.storedLocalPath = [[DownloadManager sharedInstance] getLocalStoredPathOfItem:model];
@@ -35,12 +35,8 @@
     }
 }
 
-- (void)setObserverDownloadProgress {
-    __weak typeof(self) weakSelf = self;
-    [[DownloadManager sharedInstance] setDownloadProgressBlockOfItem:^(id<DownloadableItem>  _Nonnull source, int64_t byteWritten, int64_t totalByte) {
-        [weakSelf updateProgressWithSource:source currentByte:byteWritten totalByte:totalByte];
-    }];
-    [DownloadManager sharedInstance].delegate = self;
+- (void)subcribleWithDownloader {
+    [[DownloadManager sharedInstance] addObserverForDownloader:self];
 }
 
 - (void)updateLocalPathOfModel:(NSInteger)index localStoredPath:(NSURL*)path {
@@ -57,16 +53,10 @@
     NSInteger index = [self.listMusics indexOfObject:model];
     NSInteger randomPriority = RAND_FROM_TO(1, 3);
     __weak typeof(self) weakSelf = self;
-    [[DownloadManager sharedInstance] startDownloadItem:model withPriority:randomPriority completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
-        if (error && error.code != MaximumDownloading) {
-            weakSelf.showError(error);
-        }
-        if (location) {
-            NSInteger index = [weakSelf.listMusics indexOfObject:model];
-            [weakSelf updateLocalPathOfModel:index localStoredPath:location];
-        }
-        weakSelf.reloadRowsAtIndex(index);
-
+    [[DownloadManager sharedInstance] startDownloadItem:model withPriority:randomPriority downloadProgressBlock:^(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte) {
+        [weakSelf updateDownloadProgressOfItem:item currentByte:byteWritten totalByte:totalByte];
+    } completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
+        [weakSelf didFinishDownloadItem:model localStoredPath:location error:error];
     }];
     self.reloadRowsAtIndex(index);
 }
@@ -87,22 +77,26 @@
     NSInteger index = [self.listMusics indexOfObject:model];
     __weak typeof(self) weakSelf = self;
     [[DownloadManager sharedInstance] resumeDownloadItem:model completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
-        if (error && error.code != MaximumDownloading) {
-            weakSelf.showError(error);
-        }
-        
-        if (location) {
-            NSUInteger index = [weakSelf.listMusics indexOfObject:model];
-            [weakSelf updateLocalPathOfModel:index localStoredPath:location];
-        }
-        
-        weakSelf.reloadRowsAtIndex(index);
+        [weakSelf didFinishDownloadItem:model localStoredPath:location error:error];
     }];
     self.reloadRowsAtIndex(index);
-
 }
 
-- (void)updateProgressWithSource:(MusicItem*)model currentByte:(int64_t)totalBytesWritten totalByte:(int64_t)totalBytes {
+- (void)didFinishDownloadItem:(MusicItem*)item localStoredPath:(NSURL*)location error:(NSError*)error {
+    NSUInteger index = [self.listMusics indexOfObject:item];
+    if (error && error.code != MaximumDownloading) {
+        self.showError(error);
+    }
+    
+    if (location) {
+        [self updateLocalPathOfModel:index localStoredPath:location];
+    }
+    if (index != NSNotFound) {
+        self.reloadRowsAtIndex(index);
+    }
+}
+
+- (void)updateDownloadProgressOfItem:(MusicItem*)model currentByte:(int64_t)totalBytesWritten totalByte:(int64_t)totalBytes {
     if (self.updateProgressAtIndex) {
         NSInteger index = [self.listMusics indexOfObject:model];
         float current = totalBytesWritten;
@@ -125,5 +119,24 @@
 - (void)didResumeAllDownload {
     self.reloadData();
 }
+
+- (void)didFailedDownloadByKilledWithUrl:(nonnull NSURL *)url withResumeData:(nonnull NSData *)resumeData {
+    for (NSInteger i = 0; i < self.listMusics.count; i++) {
+        MusicItem *item = [self.listMusics objectAtIndex:i];
+        if ([[item.downloadURL absoluteString] isEqual:[url absoluteString]]) {
+            __weak typeof(self) weakSelf = self;
+            [[DownloadManager sharedInstance] addResumeDownloadItem:item withResumeData:resumeData withPriority:DownloadTaskPriroityHigh downloadProgressBlock:^(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte) {
+                            [weakSelf updateDownloadProgressOfItem:item currentByte:byteWritten totalByte:totalByte];
+                        } completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                            [weakSelf didFinishDownloadItem:item localStoredPath:location error:error];
+                        }];
+            self.reloadRowsAtIndex(i);
+            NSLog(@"AVBDCDCDCDC");
+            return;
+        }
+    }
+    
+}
+
 
 @end

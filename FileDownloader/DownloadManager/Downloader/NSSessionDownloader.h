@@ -7,14 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DownloadTask.h"
+#import "NormalDownloadTask.h"
 #import "DownloaderProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 
 @interface NSSessionDownloader : NSObject <DownloaderProtocol>
-
 
 @end
 

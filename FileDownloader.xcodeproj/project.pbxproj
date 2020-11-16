@@ -23,11 +23,14 @@
 		4AA60FA22538E8B400467A0B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FA12538E8B400467A0B /* main.m */; };
 		4AA60FAC2538E8B400467A0B /* FileDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FAB2538E8B400467A0B /* FileDownloaderTests.m */; };
 		4AA60FB72538E8B400467A0B /* FileDownloaderUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FB62538E8B400467A0B /* FileDownloaderUITests.m */; };
-		4AA60FCE2538EBC000467A0B /* DownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FCD2538EBC000467A0B /* DownloadTask.m */; };
+		4AA60FCE2538EBC000467A0B /* NormalDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FCD2538EBC000467A0B /* NormalDownloadTask.m */; };
 		4AA60FD52538FFBD00467A0B /* MusicItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FD42538FFBD00467A0B /* MusicItem.m */; };
 		4AA60FDF253901C100467A0B /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FDE253901C100467A0B /* Utils.m */; };
 		4AA60FEF253906DE00467A0B /* NSSessionDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FEB253906DE00467A0B /* NSSessionDownloader.m */; };
 		4AA60FF0253906DE00467A0B /* DownloadProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AA60FEE253906DE00467A0B /* DownloadProvider.m */; };
+		4AD95651255C112B00551831 /* FileReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AD95650255C112B00551831 /* FileReader.m */; };
+		8877FD8F255CE67A009859EC /* TrunkFileDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 8877FD8E255CE67A009859EC /* TrunkFileDownloadTask.m */; };
+		8877FD9E255CE8AC009859EC /* DownloadPartData.m in Sources */ = {isa = PBXBuildFile; fileRef = 8877FD9D255CE8AC009859EC /* DownloadPartData.m */; };
 		C970DBCB736A3E5DEAABEFDB /* libPods-FileDownloaderTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A7B2EB35B2A9F1EAA3987 /* libPods-FileDownloaderTests.a */; };
 		D4B42EB0DE27CCFB4E5BEB56 /* libPods-FileDownloader.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E7B722F54FEE96A4310776A3 /* libPods-FileDownloader.a */; };
 /* End PBXBuildFile section */
@@ -84,8 +87,8 @@
 		4AA60FB22538E8B400467A0B /* FileDownloaderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FileDownloaderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AA60FB62538E8B400467A0B /* FileDownloaderUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileDownloaderUITests.m; sourceTree = "<group>"; };
 		4AA60FB82538E8B400467A0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4AA60FCC2538EBC000467A0B /* DownloadTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadTask.h; sourceTree = "<group>"; };
-		4AA60FCD2538EBC000467A0B /* DownloadTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadTask.m; sourceTree = "<group>"; };
+		4AA60FCC2538EBC000467A0B /* NormalDownloadTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NormalDownloadTask.h; sourceTree = "<group>"; };
+		4AA60FCD2538EBC000467A0B /* NormalDownloadTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NormalDownloadTask.m; sourceTree = "<group>"; };
 		4AA60FCF2538EC7700467A0B /* DownloadableItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadableItem.h; sourceTree = "<group>"; };
 		4AA60FD32538FFBD00467A0B /* MusicItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicItem.h; sourceTree = "<group>"; };
 		4AA60FD42538FFBD00467A0B /* MusicItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicItem.m; sourceTree = "<group>"; };
@@ -96,7 +99,14 @@
 		4AA60FEC253906DE00467A0B /* NSSessionDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSSessionDownloader.h; sourceTree = "<group>"; };
 		4AA60FED253906DE00467A0B /* DownloaderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloaderProtocol.h; sourceTree = "<group>"; };
 		4AA60FEE253906DE00467A0B /* DownloadProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadProvider.m; sourceTree = "<group>"; };
+		4AD9564F255C112B00551831 /* FileReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileReader.h; sourceTree = "<group>"; };
+		4AD95650255C112B00551831 /* FileReader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileReader.m; sourceTree = "<group>"; };
 		7C470E7B06ECF0F79B65FEB9 /* Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig"; path = "Target Support Files/Pods-FileDownloader-FileDownloaderUITests/Pods-FileDownloader-FileDownloaderUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		8877FD8D255CE67A009859EC /* TrunkFileDownloadTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrunkFileDownloadTask.h; sourceTree = "<group>"; };
+		8877FD8E255CE67A009859EC /* TrunkFileDownloadTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrunkFileDownloadTask.m; sourceTree = "<group>"; };
+		8877FD93255CE7AD009859EC /* DownloadTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadTask.h; sourceTree = "<group>"; };
+		8877FD9C255CE8AC009859EC /* DownloadPartData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadPartData.h; sourceTree = "<group>"; };
+		8877FD9D255CE8AC009859EC /* DownloadPartData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadPartData.m; sourceTree = "<group>"; };
 		9F4A7B2EB35B2A9F1EAA3987 /* libPods-FileDownloaderTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FileDownloaderTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF42563FA406E8B4810F6CBF /* Pods-FileDownloader-FileDownloaderUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader-FileDownloaderUITests.release.xcconfig"; path = "Target Support Files/Pods-FileDownloader-FileDownloaderUITests/Pods-FileDownloader-FileDownloaderUITests.release.xcconfig"; sourceTree = "<group>"; };
 		D2A40ED53FF48A80E51757D8 /* Pods-FileDownloader.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileDownloader.release.xcconfig"; path = "Target Support Files/Pods-FileDownloader/Pods-FileDownloader.release.xcconfig"; sourceTree = "<group>"; };
@@ -259,6 +269,7 @@
 		4AA60FD9253901A100467A0B /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				4AD9564E255C111400551831 /* FileReader */,
 				4AA60FDD253901C100467A0B /* Utils.h */,
 				4AA60FDE253901C100467A0B /* Utils.m */,
 			);
@@ -294,8 +305,13 @@
 		4AA60FE4253904D000467A0B /* DownloadModels */ = {
 			isa = PBXGroup;
 			children = (
-				4AA60FCC2538EBC000467A0B /* DownloadTask.h */,
-				4AA60FCD2538EBC000467A0B /* DownloadTask.m */,
+				8877FD93255CE7AD009859EC /* DownloadTask.h */,
+				4AA60FCC2538EBC000467A0B /* NormalDownloadTask.h */,
+				4AA60FCD2538EBC000467A0B /* NormalDownloadTask.m */,
+				8877FD8D255CE67A009859EC /* TrunkFileDownloadTask.h */,
+				8877FD8E255CE67A009859EC /* TrunkFileDownloadTask.m */,
+				8877FD9C255CE8AC009859EC /* DownloadPartData.h */,
+				8877FD9D255CE8AC009859EC /* DownloadPartData.m */,
 			);
 			path = DownloadModels;
 			sourceTree = "<group>";
@@ -325,6 +341,15 @@
 				4A94E574253A4278009F7E22 /* CompletionDownloadModel.m */,
 			);
 			path = Downloader;
+			sourceTree = "<group>";
+		};
+		4AD9564E255C111400551831 /* FileReader */ = {
+			isa = PBXGroup;
+			children = (
+				4AD9564F255C112B00551831 /* FileReader.h */,
+				4AD95650255C112B00551831 /* FileReader.m */,
+			);
+			path = FileReader;
 			sourceTree = "<group>";
 		};
 		9876399460B9280FEEBEBF39 /* Pods */ = {
@@ -553,18 +578,21 @@
 			files = (
 				4A94E575253A4278009F7E22 /* CompletionDownloadModel.m in Sources */,
 				4AA60F912538E8B200467A0B /* AppDelegate.m in Sources */,
+				4AD95651255C112B00551831 /* FileReader.m in Sources */,
 				4AA60FA22538E8B400467A0B /* main.m in Sources */,
+				8877FD9E255CE8AC009859EC /* DownloadPartData.m in Sources */,
 				4AA60FDF253901C100467A0B /* Utils.m in Sources */,
 				4AA60FEF253906DE00467A0B /* NSSessionDownloader.m in Sources */,
 				4A94E579253AF5B7009F7E22 /* MusicListViewController.m in Sources */,
 				4A94E584253C4D8A009F7E22 /* NSError+DownloadError.m in Sources */,
 				4A94E57D253AF65C009F7E22 /* MusicTableViewCell.m in Sources */,
+				8877FD8F255CE67A009859EC /* TrunkFileDownloadTask.m in Sources */,
 				4AA60FD52538FFBD00467A0B /* MusicItem.m in Sources */,
 				4AA60F942538E8B200467A0B /* SceneDelegate.m in Sources */,
 				4A94E588253C60AF009F7E22 /* Reachability.m in Sources */,
 				4A94E581253B8AB6009F7E22 /* DownloadManager.m in Sources */,
 				4A7A64BA253D93A20065AB42 /* MusicListViewModel.m in Sources */,
-				4AA60FCE2538EBC000467A0B /* DownloadTask.m in Sources */,
+				4AA60FCE2538EBC000467A0B /* NormalDownloadTask.m in Sources */,
 				4A7CCCA7254A24F000568B8D /* DownloadStatistics.m in Sources */,
 				4AA60FF0253906DE00467A0B /* DownloadProvider.m in Sources */,
 			);
@@ -663,7 +691,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -715,7 +743,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

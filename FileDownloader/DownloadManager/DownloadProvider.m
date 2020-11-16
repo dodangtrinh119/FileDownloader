@@ -19,10 +19,6 @@
     return self;
 }
 
-- (void)setDownloadProgressBlockOfItem:(void (^)(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex {
-    self.downloader.updateProgressAtIndex = updateProgressAtIndex;
-}
-
 - (NSURL *)localFilePathOfUrl:(NSURL *)url {
     return [self.downloader localFilePathOfUrl:url];
 }
@@ -44,13 +40,15 @@
 }
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
-         withPriority:(DownloadTaskPriroity)priority
-        returnToQueue:(dispatch_queue_t)queue
-           completion:(downloadTaskCompletion)completionHandler {
+             withPriority:(DownloadTaskPriroity)priority
+            returnToQueue:(dispatch_queue_t)queue
+    downloadProgressBlock:(downloadProgressBlock)progressBlock
+               completion:(downloadTaskCompletion)completion {
     [self.downloader startDownloadItem:item
-                      withPriority:priority
-                     returnToQueue:queue
-                        completion:completionHandler];
+                          withPriority:priority
+                         returnToQueue:queue
+                 downloadProgressBlock:progressBlock
+                            completion:completion];
 }
 
 - (void)configDownloader {
@@ -67,6 +65,14 @@
 
 - (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item {
     return [self.downloader getStatusOfItem:item];
+}
+
+- (void)addResumeDownloadItem:(id<DownloadableItem>)item withResumeData:(NSData *)resumeData withPriority:(DownloadTaskPriroity)priority returnToQueue:(dispatch_queue_t)queue downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completion {
+    [self.downloader addResumeDownloadItem:item withResumeData:resumeData withPriority:priority returnToQueue:queue downloadProgressBlock:progressBlock completion:completion];
+}
+
+- (void)addDownloadObserver:(id<DownloaderObserverProtocol>)downloaderObserver {
+    [self.downloader addDownloadObserver:downloaderObserver];
 }
 
 @end

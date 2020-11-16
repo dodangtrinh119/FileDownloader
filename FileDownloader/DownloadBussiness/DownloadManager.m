@@ -8,12 +8,14 @@
 
 #import "DownloadManager.h"
 #import "Reachability.h"
-#import "DownloadTask.h"
+#import "NormalDownloadTask.h"
 
 @interface DownloadManager()
 
 @property (nonatomic, strong) NSMutableArray *listItemDownloaded;
 @property (nonatomic, strong) Reachability* reachability;
+@property (nonatomic, strong) DownloadProvider *downloadProvider;
+@property (nonatomic, strong) NSURL *storedPath;
 
 @end
 
@@ -32,7 +34,7 @@
     return @"listDownloaded";
 }
 
-- (void)saveListDownloaded {
+- (void)saveListItemDownloaded {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     [userDefaults setObject:self.listItemDownloaded forKey:DownloadManager.storedDataKey];
 }
@@ -42,7 +44,7 @@
     self.listItemDownloaded = [[userDefaults arrayForKey:DownloadManager.storedDataKey] mutableCopy];
 }
 
-- (NSArray *)getListDownloaded {
+- (NSArray *)getListItemDownloaded {
     return self.listItemDownloaded;
 }
 
@@ -65,10 +67,6 @@
     return self;
 }
 
-- (void)setDownloadProgressBlockOfItem:(void (^)(id<DownloadableItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex {
-    [self.downloadProvider setDownloadProgressBlockOfItem:updateProgressAtIndex];
-}
-
 - (void)cancelDownloadItem:(id<DownloadableItem>)item {
     [self.downloadProvider cancelDownloadItem:item];
 }
@@ -88,7 +86,9 @@
         return;
     }
     
-    [self.downloadProvider resumeDownloadItem:item returnToQueue:dispatch_get_main_queue() completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    [self.downloadProvider resumeDownloadItem:item
+                                returnToQueue:dispatch_get_main_queue()
+                                   completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         if (error && completionHandler) {
             completionHandler(nil, error);
@@ -108,7 +108,10 @@
     }];
 }
 
-- (void)startDownloadItem:(id<DownloadableItem>)item withPriority:(DownloadTaskPriroity)priority completion:(downloadCompletion)completionHandler {
+- (void)startDownloadItem:(id<DownloadableItem>)item
+             withPriority:(DownloadTaskPriroity)priority
+    downloadProgressBlock:(downloadProgressBlock)progressBlock
+               completion:(downloadCompletion)completionHandler {
     NSURL* downloadUrl = item.downloadURL;
     NSURL* destinationUrl = [self.downloadProvider localFilePathOfUrl:downloadUrl];
     
@@ -126,19 +129,27 @@
     
     // If not downloaded and stored -> go download and store it to disk.
     __weak typeof(self) weakSelf = self;
-    [self.downloadProvider startDownloadItem:item withPriority:priority returnToQueue:dispatch_get_main_queue() completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    [self.downloadProvider startDownloadItem:item
+                                withPriority:priority
+                               returnToQueue:dispatch_get_main_queue()
+                       downloadProgressBlock: progressBlock
+                                  completion:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error && completionHandler) {
             completionHandler(nil, error);
         }
         if (location) {
             item.storedLocalPath = [location absoluteString];
             [weakSelf.listItemDownloaded addObject:[item.downloadURL absoluteString]];
-            [weakSelf saveListDownloaded];
+            [weakSelf saveListItemDownloaded];
             if (completionHandler) {
                 completionHandler(location, nil);
             }
         }
     }];
+}
+
+- (void)addResumeDownloadItem:(id<DownloadableItem>)item withResumeData:(NSData *)resumeData withPriority:(DownloadTaskPriroity)priority downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completionHandler {
+    [self.downloadProvider addResumeDownloadItem:item withResumeData:resumeData withPriority:priority returnToQueue:dispatch_get_main_queue() downloadProgressBlock:progressBlock completion:completionHandler];
 }
 
 - (void)networkWasChanged:(NSNotification *)notice {
@@ -147,11 +158,9 @@
     switch (remoteHostStatus) {
         case NotReachable:
             [self.downloadProvider pauseAllDownloadingItem];
-            if (self.delegate) {
-                [self.delegate didPausedDownload];
-            }
             break;
         default:
+            [self.downloadProvider resumeAllPausingItem];
             break;
     }
 }
@@ -171,6 +180,10 @@
 - (NSString *)getLocalStoredPathOfItem:(id<DownloadableItem>)item {
     NSURL* downloadUrl = item.downloadURL;
     return [[self.downloadProvider localFilePathOfUrl:downloadUrl] absoluteString];
+}
+
+- (void)addObserverForDownloader:(id<DownloaderObserverProtocol>)downloaderObserver {
+    [self.downloadProvider addDownloadObserver:downloaderObserver];
 }
 
 @end

@@ -8,19 +8,29 @@
 
 #import <Foundation/Foundation.h>
 #import "DownloadableItem.h"
-#import "DownloadTask.h"
+#import "NormalDownloadTask.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void(^downloadTaskCompletion)(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error);
 
-typedef void(^progressUpdateBlock)(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte);
+typedef void(^downloadProgressBlock)(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte);
 
 typedef void(^resultBlock)(BOOL isSuccess);
 
-@protocol DownloaderProtocol <NSObject>
+typedef void(^getItemSizeBlock)(NSInteger itemSize, NSError *error);
 
-@property (nonatomic, copy) void (^updateProgressAtIndex)(id<DownloadableItem>, int64_t byteWritten, int64_t totalByte);
+@protocol DownloaderObserverProtocol <NSObject>
+
+- (void)didPausedDownload;
+
+- (void)didResumeAllDownload;
+
+- (void)didFailedDownloadByKilledWithUrl:(NSURL*)url withResumeData:(NSData*)resumeData;
+
+@end
+
+@protocol DownloaderProtocol <NSObject>
 
 - (void)cancelDownloadItem:(id<DownloadableItem>)item;
 
@@ -31,9 +41,10 @@ typedef void(^resultBlock)(BOOL isSuccess);
             completion:(downloadTaskCompletion)completionHandler;
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
-         withPriority:(DownloadTaskPriroity)priority
-        returnToQueue:(dispatch_queue_t)queue
-           completion:(downloadTaskCompletion)completionHandler;
+             withPriority:(DownloadTaskPriroity)priority
+            returnToQueue:(dispatch_queue_t)queue
+    downloadProgressBlock:(downloadProgressBlock)progressBlock
+               completion:(downloadTaskCompletion)completion;
 
 - (void)configDownloader;
 
@@ -44,6 +55,15 @@ typedef void(^resultBlock)(BOOL isSuccess);
 - (NSURL*)localFilePathOfUrl:(NSURL *)url;
 
 - (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item;
+
+- (void)addResumeDownloadItem:(id<DownloadableItem>)item
+               withResumeData:(NSData*)resumeData
+                 withPriority:(DownloadTaskPriroity)priority
+                returnToQueue:(dispatch_queue_t)queue
+        downloadProgressBlock:(downloadProgressBlock)progressBlock
+                   completion:(downloadTaskCompletion)completion;
+
+- (void)addDownloadObserver:(id<DownloaderObserverProtocol>)downloaderObserver;
 
 @end
 

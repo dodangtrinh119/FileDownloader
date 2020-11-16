@@ -1,8 +1,8 @@
 //
-//  DownloadModel.h
+//  DownloadTask.h
 //  FileDownloader
 //
-//  Created by Đăng Trình on 10/16/20.
+//  Created by LAP13976 on 11/12/20.
 //  Copyright © 2020 Dang Trinh. All rights reserved.
 //
 
@@ -28,17 +28,20 @@ typedef NS_ENUM(NSInteger, DownloadTaskPriroity) {
     DownloadTaskPriroityHigh = 3,                        // High
 };
 
-@interface DownloadTask : NSObject
+typedef NS_ENUM(NSInteger, DownloadTaskType) {
+    NormalDownload = 1,                         // Low
+    TrunkFileDownload = 2,                      // Medium
+};
 
+@protocol DownloadTask <NSObject>
+
+@property (nonatomic, assign) long long fileSize;
 @property (nonatomic, assign) DownloadStatus downloadStatus;
 @property (nonatomic, assign) DownloadTaskPriroity taskPriority;
-@property (nonatomic, strong) NSData *resumeData;
-@property (nonatomic, strong) NSURLSessionDownloadTask *task; 
 @property (nonatomic, strong) id<DownloadableItem> downloadItem;
-
-- (instancetype)initWithItem:(id<DownloadableItem>)item;
-
-- (instancetype)initWithItem:(id<DownloadableItem>)item andPriority:(DownloadTaskPriroity)priority;
+@property (nonatomic, strong) NSMutableArray *observers;
+@property (nonatomic, assign) float progress;
+@property (nonatomic, assign) DownloadTaskType downloadType;
 
 @end
 

@@ -9,37 +9,26 @@
 #import <Foundation/Foundation.h>
 #import "DownloadProvider.h"
 #import "DownloadableItem.h"
-#import "DownloadTask.h"
+#import "NormalDownloadTask.h"
 #import "NSError+DownloadError.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@protocol DownloadBussinessDelegate <NSObject>
-
-- (void)didPausedDownload;
-
-- (void)didResumeAllDownload;
-
-@end
 
 typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullable error);
 
 @interface DownloadManager : NSObject
 
-@property (nonatomic, weak) id<DownloadBussinessDelegate> delegate;
-@property (nonatomic, strong) DownloadProvider *downloadProvider;
-@property (nonatomic, strong) NSURL *storedPath;
-
 + (instancetype)sharedInstance;
 
 + (NSString *)storedDataKey;
 
-- (NSArray *)getListDownloaded;
+- (NSArray *)getListItemDownloaded;
 
 - (NSString *)getLocalStoredPathOfItem:(id<DownloadableItem>)item;
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
              withPriority:(DownloadTaskPriroity)priority
+    downloadProgressBlock:(downloadProgressBlock)progressBlock
                completion:(downloadCompletion)completionHandler;
 
 - (void)resumeDownloadItem:(id<DownloadableItem>)item
@@ -49,11 +38,17 @@ typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullabl
 
 - (void)pauseDownloadItem:(id<DownloadableItem>)item;
 
-- (void)saveListDownloaded;
-
-- (void)setDownloadProgressBlockOfItem:(void (^)(id<DownloadableItem> source, int64_t byteWritten, int64_t totalByte))updateProgressAtIndex;
+- (void)saveListItemDownloaded;
 
 - (DownloadStatus)getStatusOfModel:(id<DownloadableItem>)item;
+
+- (void)addObserverForDownloader:(id<DownloaderObserverProtocol>)downloaderObserver;
+
+- (void)addResumeDownloadItem:(id<DownloadableItem>)item
+               withResumeData:(NSData*)resumeData
+                 withPriority:(DownloadTaskPriroity)priority
+        downloadProgressBlock:(downloadProgressBlock)progressBlock
+                   completion:(downloadTaskCompletion)completionHandler;
 
 @end
 
