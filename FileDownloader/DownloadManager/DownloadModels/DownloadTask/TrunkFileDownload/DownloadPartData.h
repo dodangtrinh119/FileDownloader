@@ -18,7 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) float partSize;
 @property (nonatomic, assign) NSURL *storedUrl;
 @property (nonatomic, strong) NSData *resumeData;
+@property (nonatomic, strong) NSString *rangeDownload;
 @property (nonatomic, assign) NSInteger lastOffsetInFile;
+@property (nonatomic, assign) NSUInteger partId;
 
 - (instancetype) initWithTask:(NSURLSessionDownloadTask*)downloadTask name:(NSString*)name;
 

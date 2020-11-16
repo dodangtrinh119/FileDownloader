@@ -19,6 +19,8 @@
 @synthesize observers;
 @synthesize taskPriority;
 @synthesize downloadType;
+@synthesize fileSize;
+@synthesize progress;
 
 - (instancetype)initWithItem:(id<DownloadableItem>)item
                  andPriority:(DownloadTaskPriroity)priority
@@ -27,6 +29,7 @@
     if (self) {
         self.downloadItem = item;
         self.taskPriority = priority;
+        self.fileSize = -1;
         self.observers = [[NSMutableArray alloc] init];
         [self.observers addObject:completion];
         self.downloadType = NormalDownload;

@@ -109,6 +109,7 @@
 }
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
+      isTrunkFileDownload:(BOOL)isTrunkFile
              withPriority:(DownloadTaskPriroity)priority
     downloadProgressBlock:(downloadProgressBlock)progressBlock
                completion:(downloadCompletion)completionHandler {
@@ -130,6 +131,7 @@
     // If not downloaded and stored -> go download and store it to disk.
     __weak typeof(self) weakSelf = self;
     [self.downloadProvider startDownloadItem:item
+                         isTrunkFileDownload:isTrunkFile
                                 withPriority:priority
                                returnToQueue:dispatch_get_main_queue()
                        downloadProgressBlock: progressBlock
@@ -148,8 +150,12 @@
     }];
 }
 
-- (void)addResumeDownloadItem:(id<DownloadableItem>)item withResumeData:(NSData *)resumeData withPriority:(DownloadTaskPriroity)priority downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completionHandler {
-    [self.downloadProvider addResumeDownloadItem:item withResumeData:resumeData withPriority:priority returnToQueue:dispatch_get_main_queue() downloadProgressBlock:progressBlock completion:completionHandler];
+- (void)createNormalDownloadTaskWithItem:(id<DownloadableItem>)item withResumeData:(NSData *)resumeData withPriority:(DownloadTaskPriroity)priority downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completionHandler {
+    [self.downloadProvider createNormalDownloadTaskWithItem:item withResumeData:resumeData withPriority:priority returnToQueue:dispatch_get_main_queue() downloadProgressBlock:progressBlock completion:completionHandler];
+}
+
+- (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item withData:(NSDictionary *)taskData withPriority:(DownloadTaskPriroity)priority downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completion {
+    [self.downloadProvider createTrunkFileDownloadTaskWithItem:item withData:taskData withPriority:priority returnToQueue:dispatch_get_main_queue() downloadProgressBlock:progressBlock completion:completion];
 }
 
 - (void)networkWasChanged:(NSNotification *)notice {

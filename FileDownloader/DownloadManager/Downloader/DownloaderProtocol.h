@@ -26,7 +26,9 @@ typedef void(^getItemSizeBlock)(NSInteger itemSize, NSError *error);
 
 - (void)didResumeAllDownload;
 
-- (void)didFailedDownloadByKilledWithUrl:(NSURL*)url withResumeData:(NSData*)resumeData;
+- (void)hasPausingNormalDownloadTaskWith:(NSURL*)url withResumeData:(NSData*)resumeData;
+
+- (void)hasPausingTrunkFileDownloadDataWithUrl:(NSURL*)url withDownloadData:(NSDictionary*)trunkFileData;
 
 @end
 
@@ -41,6 +43,7 @@ typedef void(^getItemSizeBlock)(NSInteger itemSize, NSError *error);
             completion:(downloadTaskCompletion)completionHandler;
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
+      isTrunkFileDownload:(BOOL)isTrunkFile
              withPriority:(DownloadTaskPriroity)priority
             returnToQueue:(dispatch_queue_t)queue
     downloadProgressBlock:(downloadProgressBlock)progressBlock
@@ -56,12 +59,19 @@ typedef void(^getItemSizeBlock)(NSInteger itemSize, NSError *error);
 
 - (DownloadStatus)getStatusOfItem:(id<DownloadableItem>)item;
 
-- (void)addResumeDownloadItem:(id<DownloadableItem>)item
+- (void)createNormalDownloadTaskWithItem:(id<DownloadableItem>)item
                withResumeData:(NSData*)resumeData
                  withPriority:(DownloadTaskPriroity)priority
                 returnToQueue:(dispatch_queue_t)queue
         downloadProgressBlock:(downloadProgressBlock)progressBlock
                    completion:(downloadTaskCompletion)completion;
+
+- (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item
+                                   withData:(NSDictionary*)taskData
+                               withPriority:(DownloadTaskPriroity)priority
+                              returnToQueue:(dispatch_queue_t)queue
+                      downloadProgressBlock:(downloadProgressBlock)progressBlock
+                                 completion:(downloadTaskCompletion)completion;
 
 - (void)addDownloadObserver:(id<DownloaderObserverProtocol>)downloaderObserver;
 

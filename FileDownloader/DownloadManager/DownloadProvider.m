@@ -40,11 +40,13 @@
 }
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
+      isTrunkFileDownload:(BOOL)isTrunkFile
              withPriority:(DownloadTaskPriroity)priority
             returnToQueue:(dispatch_queue_t)queue
     downloadProgressBlock:(downloadProgressBlock)progressBlock
                completion:(downloadTaskCompletion)completion {
     [self.downloader startDownloadItem:item
+                   isTrunkFileDownload:isTrunkFile
                           withPriority:priority
                          returnToQueue:queue
                  downloadProgressBlock:progressBlock
@@ -67,8 +69,12 @@
     return [self.downloader getStatusOfItem:item];
 }
 
-- (void)addResumeDownloadItem:(id<DownloadableItem>)item withResumeData:(NSData *)resumeData withPriority:(DownloadTaskPriroity)priority returnToQueue:(dispatch_queue_t)queue downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completion {
-    [self.downloader addResumeDownloadItem:item withResumeData:resumeData withPriority:priority returnToQueue:queue downloadProgressBlock:progressBlock completion:completion];
+- (void)createNormalDownloadTaskWithItem:(id<DownloadableItem>)item withResumeData:(NSData *)resumeData withPriority:(DownloadTaskPriroity)priority returnToQueue:(dispatch_queue_t)queue downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completion {
+    [self.downloader createNormalDownloadTaskWithItem:item withResumeData:resumeData withPriority:priority returnToQueue:queue downloadProgressBlock:progressBlock completion:completion];
+}
+
+- (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item withData:(NSDictionary *)taskData withPriority:(DownloadTaskPriroity)priority returnToQueue:(dispatch_queue_t)queue downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completion {
+    [self.downloader createTrunkFileDownloadTaskWithItem:item withData:taskData withPriority:priority returnToQueue:queue downloadProgressBlock:progressBlock completion:completion];
 }
 
 - (void)addDownloadObserver:(id<DownloaderObserverProtocol>)downloaderObserver {

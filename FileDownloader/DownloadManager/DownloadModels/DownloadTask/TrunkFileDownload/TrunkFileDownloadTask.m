@@ -8,7 +8,7 @@
 
 #import "TrunkFileDownloadTask.h"
 
-@interface TrunkFileDownloadTask()
+@interface TrunkFileDownloadTask() <NSCoding>
 
 
 @end
@@ -29,11 +29,29 @@
         self.countPartDownloaded = 0;
         self.taskPriority = priority;
         self.downloadType = TrunkFileDownload;
+        self.fileSize = -1;
         self.observers = [[NSMutableArray alloc] init];
         [self.observers addObject:completion];
     }
     return self;
 }
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:self.listPart forKey:@"listPart"];
+    [coder encodeObject:[NSNumber numberWithLongLong:fileSize] forKey:@"fileSize"];
+}
+
+- (instancetype)initWithCoder:(nonnull NSCoder *)coder {
+    self = [super init];
+
+    if (self) {
+        self.listPart = [coder decodeObjectForKey:@"listPart"];
+        NSNumber *fileSize = [coder decodeObjectForKey:@"fileSize"];
+        self.fileSize = fileSize.longLongValue;
+    }
+    return self;
+}
+
 
 @synthesize downloadItem;
 @synthesize downloadStatus;

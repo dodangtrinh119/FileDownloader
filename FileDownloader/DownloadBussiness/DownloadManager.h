@@ -27,6 +27,7 @@ typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullabl
 - (NSString *)getLocalStoredPathOfItem:(id<DownloadableItem>)item;
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
+      isTrunkFileDownload:(BOOL)isTrunkFile
              withPriority:(DownloadTaskPriroity)priority
     downloadProgressBlock:(downloadProgressBlock)progressBlock
                completion:(downloadCompletion)completionHandler;
@@ -44,11 +45,17 @@ typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullabl
 
 - (void)addObserverForDownloader:(id<DownloaderObserverProtocol>)downloaderObserver;
 
-- (void)addResumeDownloadItem:(id<DownloadableItem>)item
+- (void)createNormalDownloadTaskWithItem:(id<DownloadableItem>)item
                withResumeData:(NSData*)resumeData
                  withPriority:(DownloadTaskPriroity)priority
         downloadProgressBlock:(downloadProgressBlock)progressBlock
                    completion:(downloadTaskCompletion)completionHandler;
+
+- (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item
+                             withData:(NSDictionary*)taskData
+                               withPriority:(DownloadTaskPriroity)priority
+                      downloadProgressBlock:(downloadProgressBlock)progressBlock
+                                 completion:(downloadTaskCompletion)completion;
 
 @end
 

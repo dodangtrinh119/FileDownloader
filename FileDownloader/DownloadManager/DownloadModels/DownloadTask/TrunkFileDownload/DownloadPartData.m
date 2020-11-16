@@ -8,6 +8,10 @@
 
 #import "DownloadPartData.h"
 
+@interface DownloadPartData() <NSCoding>
+
+@end
+
 @implementation DownloadPartData
 
 - (instancetype)initWithTask:(NSURLSessionDownloadTask *)downloadTask name:(NSString *)name {
@@ -16,13 +20,14 @@
         self.nameOfPart = name;
         self.currentByteDownloaded = 0;
         self.lastOffsetInFile = -1;
-        self.partSize = 0;
+        self.partSize = -1;
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeObject:self.nameOfPart forKey:@"partName"];
+    [coder encodeObject:self.rangeDownload forKey:@"rangeDownload"];
     [coder encodeObject:self.resumeData forKey:@"resumeData"];
 }
 

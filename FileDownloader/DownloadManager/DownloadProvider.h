@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
             completion:(downloadTaskCompletion)completion;
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
+      isTrunkFileDownload:(BOOL)isTrunkFile
              withPriority:(DownloadTaskPriroity)priority
             returnToQueue:(dispatch_queue_t)queue
     downloadProgressBlock:(downloadProgressBlock)progressBlock
@@ -43,12 +44,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSURL*)localFilePathOfUrl:(NSURL *)url;
 
-- (void)addResumeDownloadItem:(id<DownloadableItem>)item
+- (void)createNormalDownloadTaskWithItem:(id<DownloadableItem>)item
                withResumeData:(NSData*)resumeData
                  withPriority:(DownloadTaskPriroity)priority
                 returnToQueue:(dispatch_queue_t)queue
         downloadProgressBlock:(downloadProgressBlock)progressBlock
                    completion:(downloadTaskCompletion)completion;
+
+- (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item
+                             withData:(NSDictionary*)taskData
+                               withPriority:(DownloadTaskPriroity)priority
+                              returnToQueue:(dispatch_queue_t)queue
+                      downloadProgressBlock:(downloadProgressBlock)progressBlock
+                                 completion:(downloadTaskCompletion)completion;
 @end
 
 NS_ASSUME_NONNULL_END
