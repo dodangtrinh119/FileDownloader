@@ -28,7 +28,7 @@ typedef void(^getItemSizeBlock)(NSInteger itemSize, NSError *error);
 
 - (void)hasPausingNormalDownloadTaskWith:(NSURL*)url withResumeData:(NSData*)resumeData;
 
-- (void)hasPausingTrunkFileDownloadDataWithUrl:(NSURL*)url withDownloadData:(NSDictionary*)trunkFileData;
+- (void)hasPausingTrunkFileDownloadDataWithUrl:(NSURL*)url withDownloadData:(NSData*)trunkFileData;
 
 @end
 
@@ -67,7 +67,7 @@ typedef void(^getItemSizeBlock)(NSInteger itemSize, NSError *error);
                    completion:(downloadTaskCompletion)completion;
 
 - (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item
-                                   withData:(NSDictionary*)taskData
+                                   withData:(NSData*)taskData
                                withPriority:(DownloadTaskPriroity)priority
                               returnToQueue:(dispatch_queue_t)queue
                       downloadProgressBlock:(downloadProgressBlock)progressBlock

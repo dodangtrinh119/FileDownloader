@@ -53,7 +53,7 @@
     NSInteger index = [self.listMusics indexOfObject:model];
     NSInteger randomPriority = RAND_FROM_TO(1, 3);
     __weak typeof(self) weakSelf = self;
-    [[DownloadManager sharedInstance] startDownloadItem:model isTrunkFileDownload:NO withPriority:randomPriority downloadProgressBlock:^(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte) {
+    [[DownloadManager sharedInstance] startDownloadItem:model isTrunkFileDownload:YES withPriority:randomPriority downloadProgressBlock:^(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte) {
         [weakSelf updateDownloadProgressOfItem:item currentByte:byteWritten totalByte:totalByte];
     } completion:^(NSURL * _Nullable location, NSError * _Nullable error) {
         [weakSelf didFinishDownloadItem:model localStoredPath:location error:error];

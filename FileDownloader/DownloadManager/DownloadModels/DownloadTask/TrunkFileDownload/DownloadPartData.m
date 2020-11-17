@@ -26,6 +26,7 @@
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeInteger:self.task.taskIdentifier forKey:@"partId"];
     [coder encodeObject:self.nameOfPart forKey:@"partName"];
     [coder encodeObject:self.rangeDownload forKey:@"rangeDownload"];
     [coder encodeObject:self.resumeData forKey:@"resumeData"];
@@ -34,6 +35,8 @@
 - (instancetype)initWithCoder:(NSCoder *)coder {
     self = [super init];
     if (self) {
+        self.rangeDownload = [coder decodeObjectForKey:@"rangeDownload"];
+        self.partId = [coder decodeIntegerForKey:@"partId"];
         self.nameOfPart = [coder decodeObjectForKey:@"partName"];
         self.resumeData = [coder decodeObjectForKey:@"resumeData"];
     }

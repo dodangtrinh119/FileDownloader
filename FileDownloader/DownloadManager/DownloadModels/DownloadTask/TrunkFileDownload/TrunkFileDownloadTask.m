@@ -38,6 +38,7 @@
 
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeObject:self.listPart forKey:@"listPart"];
+    [coder encodeInteger:TrunkFileDownload forKey:@"downloadType"];
     [coder encodeObject:[NSNumber numberWithLongLong:fileSize] forKey:@"fileSize"];
 }
 

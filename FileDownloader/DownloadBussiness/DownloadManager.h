@@ -52,7 +52,7 @@ typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullabl
                    completion:(downloadTaskCompletion)completionHandler;
 
 - (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item
-                             withData:(NSDictionary*)taskData
+                             withData:(NSData*)taskData
                                withPriority:(DownloadTaskPriroity)priority
                       downloadProgressBlock:(downloadProgressBlock)progressBlock
                                  completion:(downloadTaskCompletion)completion;

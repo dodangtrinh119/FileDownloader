@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
                    completion:(downloadTaskCompletion)completion;
 
 - (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item
-                             withData:(NSDictionary*)taskData
+                             withData:(NSData*)taskData
                                withPriority:(DownloadTaskPriroity)priority
                               returnToQueue:(dispatch_queue_t)queue
                       downloadProgressBlock:(downloadProgressBlock)progressBlock

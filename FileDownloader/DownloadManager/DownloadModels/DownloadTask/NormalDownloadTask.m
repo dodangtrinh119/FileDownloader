@@ -8,7 +8,7 @@
 
 #import "NormalDownloadTask.h"
 
-@interface NormalDownloadTask ()
+@interface NormalDownloadTask () <NSCoding>
 
 @end
 
@@ -33,6 +33,24 @@
         self.observers = [[NSMutableArray alloc] init];
         [self.observers addObject:completion];
         self.downloadType = NormalDownload;
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:[NSNumber numberWithLongLong:fileSize] forKey:@"fileSize"];
+    [coder encodeObject:self.resumeData forKey:@"resumeData"];
+    [coder encodeInteger:NormalDownload forKey:@"downloadType"];
+}
+
+- (instancetype)initWithCoder:(nonnull NSCoder *)coder {
+    self = [super init];
+
+    if (self) {
+        self.downloadType = [coder decodeIntegerForKey:@"downloadType"];
+        NSNumber *fileSize = [coder decodeObjectForKey:@"fileSize"];
+        self.fileSize = fileSize.longLongValue;
+        self.resumeData = [coder decodeObjectForKey:@"resumeData"];
     }
     return self;
 }

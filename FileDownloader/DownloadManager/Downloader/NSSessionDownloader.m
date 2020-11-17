@@ -83,8 +83,6 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
             case NormalDownload: {
                 NormalDownloadTask *normalDownloadTask = (NormalDownloadTask *)downloadTask;
                 [normalDownloadTask.task cancel];
-                [weakSelf.resumeDataStored removeObjectForKey:keyForItem];
-                [weakSelf saveListResumeData];
                 break;
             }
             case TrunkFileDownload: {
@@ -95,6 +93,7 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
                 break;
             }
         }
+        [weakSelf removeStoredAtKey:keyForItem];
         [weakSelf downloadItemInWaitingQueue];
     });
 }
@@ -141,11 +140,11 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
             }
             return;
         }
-        downloadTask.downloadStatus = DownloadPending;
+        downloadTask.downloadStatus = DownloadPauseBySystem;
     });
 }
 
-- (void)createTrunkFileDownloadTaskWithItem:(nonnull id<DownloadableItem>)item withData:(nonnull NSDictionary *)taskData withPriority:(DownloadTaskPriroity)priority returnToQueue:(nonnull dispatch_queue_t)queue downloadProgressBlock:(nonnull downloadProgressBlock)progressBlock completion:(nonnull downloadTaskCompletion)completion {
+- (void)createTrunkFileDownloadTaskWithItem:(nonnull id<DownloadableItem>)item withData:(NSData *)taskData withPriority:(DownloadTaskPriroity)priority returnToQueue:(nonnull dispatch_queue_t)queue downloadProgressBlock:(nonnull downloadProgressBlock)progressBlock completion:(nonnull downloadTaskCompletion)completion {
     if (![self isValidUrl:item.downloadURL] && completion) {
         completion(nil, nil, DownloadErrorByCode(DownloadInvalidUrl));
         return;
@@ -166,41 +165,59 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
         // Check if already have this url downloading -> add completion to observers.
          
         TrunkFileDownloadTask *trunkFileDownloadTask = [[TrunkFileDownloadTask alloc] initWithItem:item andPriority:priority andCompletion:completionModel];
-                
-        trunkFileDownloadTask.fileSize = [taskData objectForKey:@"fileSize"];
-        trunkFileDownloadTask.countPartDownloaded = [taskData objectForKey:@"countDownloaded"];
-        NSDictionary *listResumeData = [taskData objectForKey:@"partsData"];
+        TrunkFileDownloadTask *storedTask = [NSKeyedUnarchiver unarchiveObjectWithData:taskData];
+        trunkFileDownloadTask.listPart = storedTask.listPart;
+        trunkFileDownloadTask.fileSize = storedTask.fileSize;
         
-        NSMutableArray *listPartsSize = [self splitToMultiplePartSizeWithSize:trunkFileDownloadTask.fileSize];
-        for (NSInteger index = 0; index < listPartsSize.count; index++) {
-            NSMutableURLRequest* req = [NSMutableURLRequest requestWithURL:item.downloadURL];
-            [req addValue:[listPartsSize objectAtIndex:index] forHTTPHeaderField:@"Range"];
-            NSURLSessionDownloadTask *task = [self.downloadSession downloadTaskWithRequest:req];
-            NSString *partName = [NSString stringWithFormat:@"%@-part%ld.tmp",item.downloadURL.lastPathComponent,index];
-            DownloadPartData *partData = [[DownloadPartData alloc] initWithTask:task name:partName];
-            partData.rangeDownload = [listPartsSize objectAtIndex:index];
-            NSData *resumeDataOfPart = [listResumeData objectForKey:partName];
-            if (resumeDataOfPart) {
-                partData.resumeData = resumeDataOfPart;
-            }
-            [trunkFileDownloadTask.listPart addObject:partData];
-        }
         [weakSelf.activeDownload setObject:trunkFileDownloadTask forKey:keyForItem];
-        trunkFileDownloadTask.downloadStatus = DownloadPending;
+        trunkFileDownloadTask.downloadStatus = DownloadPauseBySystem;
     });
 }
 
-- (void)saveListResumeData {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setObject:self.resumeDataStored forKey:@"DownloaderResumeDatas"];
+- (void)saveDownloadTask:(id<DownloadTask>)task forKey:(NSString*)key {
+    NSError *archiveError = nil;
+    NSData *encodedTask = [NSKeyedArchiver archivedDataWithRootObject:task requiringSecureCoding:NO error:&archiveError];
+    [self.resumeDataStored setObject:encodedTask forKey:key];
+    NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:self.resumeDataStored requiringSecureCoding:NO error:&archiveError];
+   
+    if (archiveError) {
+        return;
+    }
+    
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSURL *storedDataFileUrl = [self localFileOfFileName:@"storedDownloadData"];
+    if ([fileManager fileExistsAtPath:[storedDataFileUrl path]]) {
+        [fileManager removeItemAtPath:[storedDataFileUrl path] error:nil];
+    }
+    [fileManager createFileAtPath:[storedDataFileUrl path] contents:encodedObject attributes:nil];
+
+}
+
+- (void)removeStoredAtKey:(NSString*)key {
+    [self.resumeDataStored removeObjectForKey:key];
+    NSError *archiveError = nil;
+    NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:self.resumeDataStored requiringSecureCoding:NO error:&archiveError];
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSURL *storedDataFileUrl = [self localFileOfFileName:@"storedDownloadData"];
+    if ([fileManager fileExistsAtPath:[storedDataFileUrl path]]) {
+        [fileManager removeItemAtPath:[storedDataFileUrl path] error:nil];
+    }
+    [fileManager createFileAtPath:[storedDataFileUrl path] contents:encodedObject attributes:nil];
+    
 }
 
 - (void)getListResumeDatas {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    self.resumeDataStored = [[userDefaults dictionaryForKey:@"DownloaderResumeDatas"] mutableCopy];
+    NSError *unarchiveError = nil;
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSURL *storedDataFileUrl = [self localFileOfFileName:@"storedDownloadData"];
+    if ([fileManager fileExistsAtPath:[storedDataFileUrl path]]) {
+        NSData *contentOfFile = [fileManager contentsAtPath:[storedDataFileUrl path]];
+        self.resumeDataStored = [NSKeyedUnarchiver unarchiveObjectWithData:contentOfFile];
+    }
     if (!self.resumeDataStored) {
         self.resumeDataStored = [[NSMutableDictionary alloc] init];
     }
+    
 }
 
 - (void)startDownloadItem:(id<DownloadableItem>)item
@@ -258,11 +275,13 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
                 downloadTask.fileSize = itemSize;
                 TrunkFileDownloadTask *trunkFileDownloadTask = (TrunkFileDownloadTask *)downloadTask;
                 [weakSelf startTrunkFileDownloadTask:trunkFileDownloadTask];
+                [weakSelf saveDownloadTask:downloadTask forKey:keyForItem];
             }];
         } else {
             NormalDownloadTask *normalDownloadTask = (NormalDownloadTask *)downloadTask;
             normalDownloadTask.task = [weakSelf.downloadSession downloadTaskWithURL:url];
             [normalDownloadTask.task resume];
+            [weakSelf saveDownloadTask:downloadTask forKey:keyForItem];
         }
     });
 }
@@ -300,9 +319,10 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
             case TrunkFileDownload: {
                 TrunkFileDownloadTask *trunkFileDownloadTask = (TrunkFileDownloadTask *)downloadTask;
                 [weakSelf pauseTrunkFileDownloadTask:trunkFileDownloadTask andStoreWithKey:keyOfTask];
+                break;
             }
         }
-       
+        [self downloadItemInWaitingQueue];
     });
 }
 
@@ -310,40 +330,23 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     if (!trunkFileDownloadTask) {
         return;
     }
-    NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:trunkFileDownloadTask];
-    [self.resumeDataStored setObject:encodedObject forKey:keyOfTask];
-    [self saveListResumeData];
-
-//    NSMutableDictionary *storedResumeDataTrunkFile = [[NSMutableDictionary alloc] init];
-//    [storedResumeDataTrunkFile setObject:[NSNumber numberWithInteger:TrunkFileDownload] forKey:@"downloadType"];
-//    [storedResumeDataTrunkFile setObject:[NSNumber numberWithLong:trunkFileDownloadTask.fileSize] forKey:@"fileSize"];
-//    [storedResumeDataTrunkFile setObject:[NSNumber numberWithInteger: trunkFileDownloadTask.countPartDownloaded] forKey:@"countDownloaded"];
-//    NSMutableDictionary *listPartsData = [[NSMutableDictionary alloc] init];
-//    for (DownloadPartData *part in trunkFileDownloadTask.listPart) {
-//        [part.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-//            if (resumeData) {
-//                part.resumeData = resumeData;
-//                [listPartsData setObject:part.resumeData forKey:part.nameOfPart];
-//                [storedResumeDataTrunkFile setObject:listPartsData forKey:@"partsData"];
-//                [self.resumeDataStored setObject:storedResumeDataTrunkFile forKey:keyOfTask];
-//                [self saveListResumeData];
-//                //store resume data for kill app;
-//            }
-//        }];
-//    }
-    
-    [self downloadItemInWaitingQueue];
+    for (DownloadPartData *part in trunkFileDownloadTask.listPart) {
+        [part.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+            if (resumeData) {
+                part.resumeData = resumeData;
+                [self saveDownloadTask:trunkFileDownloadTask forKey:keyOfTask];
+            }
+        }];
+    }
 }
 
 - (void)pauseNormalDownloadTask:(NormalDownloadTask *)normalDownloadTask andStoreWithKey:(NSString*)keyOfTask {
+    __weak typeof(self) weakSelf = self;
     [normalDownloadTask.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-        [self downloadItemInWaitingQueue];
+        [weakSelf downloadItemInWaitingQueue];
         if (resumeData) {
             normalDownloadTask.resumeData = resumeData;
-            NSDictionary *storedData = @{@"downloadType": [NSNumber numberWithInteger:NormalDownload],
-                                         @"resumeData": resumeData};
-            [self.resumeDataStored setObject:storedData forKey:keyOfTask];
-            [self saveListResumeData];
+            [weakSelf saveDownloadTask:normalDownloadTask forKey:keyOfTask];
         }
     }];
 }
@@ -418,7 +421,7 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
 - (NSMutableArray*)splitToMultiplePartSizeWithSize:(long long)fileSize {
     NSMutableArray *listPartSize = [[NSMutableArray alloc] init];
     NSInteger totalPart = 3;
-    for (NSInteger i = 5; i > 0 ; i--) {
+    for (NSInteger i = 4; i > 0 ; i--) {
         if (fileSize % i == 0) {
             totalPart = i;
             break;
@@ -486,29 +489,29 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
 }
 
 - (void)pauseAllDownloadingItem {
-    __weak typeof(self) weakSelf = self;
-    dispatch_sync(self.downloaderQueue, ^{
-        for (NSString *key in weakSelf.activeDownload.allKeys) {
-            
-            // When network status changed from available -> not available.
-            // Pausing all task downloading, and store resume data for resume.
-            NormalDownloadTask *model = [weakSelf.activeDownload objectForKey:key];
-            if (model && model.downloadStatus == DownloadStatusDownloading) {
-                weakSelf.currentDownload --;
-                [model.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-                    if (resumeData) {
-                        model.resumeData = resumeData;
-                        NSDictionary *storedData = @{@"downloadType": [NSNumber numberWithInteger:NormalDownload],
-                                                     @"resumeData": resumeData};
-                        [weakSelf.resumeDataStored setObject:storedData forKey:key];
-                        [weakSelf saveListResumeData];
-                    }
-                }];
-                model.downloadStatus = DownloadPauseBySystem;
-            }
-        }
-        [weakSelf notifyDidPauseAllDownload];
-    });
+//    __weak typeof(self) weakSelf = self;
+//    dispatch_sync(self.downloaderQueue, ^{
+//        for (NSString *key in weakSelf.activeDownload.allKeys) {
+//
+//            // When network status changed from available -> not available.
+//            // Pausing all task downloading, and store resume data for resume.
+//            NormalDownloadTask *model = [weakSelf.activeDownload objectForKey:key];
+//            if (model && model.downloadStatus == DownloadStatusDownloading) {
+//                weakSelf.currentDownload --;
+//                [model.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+//                    if (resumeData) {
+//                        model.resumeData = resumeData;
+//                        NSDictionary *storedData = @{@"downloadType": [NSNumber numberWithInteger:NormalDownload],
+//                                                     @"resumeData": resumeData};
+//                        [weakSelf.resumeDataStored setObject:storedData forKey:key];
+//                        [weakSelf saveListResumeData];
+//                    }
+//                }];
+//                model.downloadStatus = DownloadPauseBySystem;
+//            }
+//        }
+//        [weakSelf notifyDidPauseAllDownload];
+//    });
 }
 
 - (void)resumeAllPausingItem {
@@ -694,7 +697,7 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
                 NSURL* destinationUrl = [self localFilePathOfUrl:sourceUrl];
                 NSFileManager *fileManager = NSFileManager.defaultManager;
                 NSError *saveFileError = nil;
-                
+                [self removeStoredAtKey:keyOfTask];
                 // Copy temp file after downloaded to destination path and stored with right format of file.
                 [fileManager copyItemAtURL:location toURL:destinationUrl error:&saveFileError];
                 if (saveFileError) {
@@ -747,6 +750,7 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
                             [fileManager removeItemAtPath:path error:&removeTempFileError];
                         }
                     }
+                    [self removeStoredAtKey:keyOfTask];
                     [self returnForAllTask:sourceUrl storedLocation:destinationUrl response:nil error:nil];
 
                 }
@@ -803,35 +807,35 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
         if (downloadTask.downloadStatus == DownloadPending) {
             return;
         }
+        NSData *resumeData = [error.userInfo objectForKey:@"NSURLSessionDownloadTaskResumeData"];
         switch (downloadTask.downloadType) {
             case NormalDownload: {
                 if (self.observers.count > 0) {
                     NormalDownloadTask *normalDownloadTask = (NormalDownloadTask*)downloadTask;
-                    NSData *resumeData = [error.userInfo objectForKey:@"NSURLSessionDownloadTaskResumeData"];
                     normalDownloadTask.resumeData = resumeData;
-                    NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:normalDownloadTask requiringSecureCoding:NO error:nil];
-                    [self.resumeDataStored setObject:encodedObject forKey:key];
-                    [self saveListResumeData];
-                    [self notifyHasPausingDownloadWithResumeData:sourceUrl resumeData:resumeData];
+                    [self saveDownloadTask:normalDownloadTask forKey:key];
+                    //[self notifyHasPausingDownloadWithResumeData:sourceUrl resumeData:resumeData];
                     return;
                 }
                 break;
             }
             case TrunkFileDownload: {
-                //TrunkFileDownloadTask *task
-                break;
+                TrunkFileDownloadTask *trunkFileDownloadTask = (TrunkFileDownloadTask*)downloadTask;
+                if (trunkFileDownloadTask) {
+                    for (DownloadPartData *partData in trunkFileDownloadTask.listPart) {
+                        if (partData.partId == task.taskIdentifier) {
+                            partData.resumeData = resumeData;
+                        }
+                    }
+                }
+                [self saveDownloadTask:trunkFileDownloadTask forKey:key];
+                return;
             }
         }
-        //[self isValidResumeData:[error.userInfo objectForKey:@"NSURLSessionDownloadTaskResumeData"]];
         
-        //DownloadTask *task = [DownloadTask alloc] initWithItem:
     }
-    
-    
     downloadTask.downloadStatus = DownloadError;
     [self returnForAllTask:sourceUrl storedLocation:nil response:nil error:DownloadErrorByCode(UnexpectedError)];
-    
-    
 }
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
@@ -898,11 +902,12 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     }
 }
 
-- (void)notifyHasPausingTrunkFileDownloadData:(NSURL*)source trunkFileData:(NSDictionary*)trunkFileData {
+- (void)notifyHasPausingTrunkFileDownloadData:(NSURL*)source trunkFileData:(NSData*)trunkFileData {
     for (id<DownloaderObserverProtocol> observer in self.observers) {
         [observer hasPausingTrunkFileDownloadDataWithUrl:source withDownloadData:trunkFileData];
     }
 }
+
 
 - (void)notifyDidPauseAllDownload {
     for (id<DownloaderObserverProtocol> observer in self.observers) {
@@ -924,150 +929,18 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
             if (!url) {
                 return;
             }
-            return;
-            NSDictionary *storedData = [self.resumeDataStored objectForKey:key];
-            DownloadTaskType downloadType = [storedData objectForKey:@"downloadType"];
-            if (!downloadType) {
-                return;
-            }
-            switch (downloadType) {
-                case NormalDownload: {
-                    NSData *resumeData = [storedData objectForKey:@"resumeData"];
-                    if (resumeData) {
-                        [self notifyHasPausingDownloadWithResumeData:url resumeData:resumeData];
-                    }
-                    break;
-                }
-                case TrunkFileDownload: {
-                    [self notifyHasPausingTrunkFileDownloadData:url trunkFileData:storedData];
-                    break;
-                }
+            NSData *storedData = [self.resumeDataStored objectForKey:key];
+            
+            id<DownloadTask> downloadTask = [NSKeyedUnarchiver unarchiveObjectWithData:storedData];
+            if (downloadTask.downloadType == NormalDownload) {
+                NormalDownloadTask *normalDownloadTask = (NormalDownloadTask *)downloadTask;
+                [self notifyHasPausingDownloadWithResumeData:url resumeData:normalDownloadTask.resumeData];
+            } else {
+                TrunkFileDownloadTask *trunkFileDownloadTask = (TrunkFileDownloadTask*)downloadTask;
+                [self notifyHasPausingTrunkFileDownloadData:url trunkFileData:storedData];
             }
         }
     }
-}
-
-
-
-
-#pragma mark - fix resume data for iOS < 10.2
-
--(BOOL)isValidResumeData:(NSData *)data {
-    if (!data || [data length] < 1) return NO;
-       NSError *error;
-       NSDictionary *resumeDictionary = [NSPropertyListSerialization propertyListWithData:data options:kCFPropertyListMutableContainersAndLeaves format:nil error:&error];
-       if (!resumeDictionary || error) return NO;
-
-       NSString *resumeDataFileName = resumeDictionary[@"NSURLSessionResumeInfoTempFileName"];
-       NSString *newTempPath = NSTemporaryDirectory();
-       NSString *newResumeDataPath = [newTempPath stringByAppendingPathComponent:resumeDataFileName];
-       [resumeDictionary setValue:newResumeDataPath forKey:@"NSURLSessionResumeInfoLocalPath"];
-
-       NSString *localTmpFilePath = [resumeDictionary objectForKey:@"NSURLSessionResumeInfoLocalPath"];
-       if ([localTmpFilePath length] < 1) return NO;
-
-       BOOL result = [[NSFileManager defaultManager] fileExistsAtPath:localTmpFilePath];
-
-       if (!result) {
-           NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-           NSString *localName = [localTmpFilePath lastPathComponent];
-           NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-           NSString *cachesDir = [paths objectAtIndex:0];
-           NSString *localCachePath = [[[cachesDir stringByAppendingPathComponent:@"com.apple.nsurlsessiond/Downloads"]stringByAppendingPathComponent:bundleIdentifier]stringByAppendingPathComponent:localName];
-           result = [[NSFileManager defaultManager] moveItemAtPath:localCachePath toPath:localTmpFilePath error:nil];
-       }
-       return result;
-}
-
-- (NSMutableDictionary *)getResumDictionary:(NSData *)data
-{
-    NSMutableDictionary *iresumeDictionary;
-    if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion >= 10) {
-        NSMutableDictionary *root;
-        NSError *error = nil;
-        NSKeyedUnarchiver *keyedUnarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-        root = [keyedUnarchiver decodeTopLevelObjectForKey:@"NSKeyedArchiveRootObjectKey" error:&error];
-        if (!root) {
-            root = [keyedUnarchiver decodeTopLevelObjectForKey:NSKeyedArchiveRootObjectKey error:&error];
-        }
-        [keyedUnarchiver finishDecoding];
-        iresumeDictionary = root;
-    }
-
-    if (!iresumeDictionary) {
-        iresumeDictionary = [NSPropertyListSerialization propertyListWithData:data options:0 format:nil error:nil];
-    }
-    return iresumeDictionary;
-}
-
-- (NSData *)correctResumData:(NSData *)data {
-    NSMutableDictionary *resumeDictionary = [self getResumDictionary:data];
-    if (!data || !resumeDictionary) {
-        return nil;
-    }
-
-    resumeDictionary[kResumeCurrentRequest] = [self correctRequestData:[resumeDictionary objectForKey:kResumeCurrentRequest]];
-    resumeDictionary[kResumeOriginalRequest] = [self correctRequestData:[resumeDictionary objectForKey:kResumeOriginalRequest]];
-
-    NSData *result = [NSPropertyListSerialization dataWithPropertyList:resumeDictionary format:NSPropertyListXMLFormat_v1_0 options:0 error:nil];
-    return result;
-}
-
-- (NSData *)correctRequestData:(NSData *)data {
-    if (!data) {
-        return nil;
-    }
-    if ([NSKeyedUnarchiver unarchiveObjectWithData:data]) {
-        return data;
-    }
-
-    NSMutableDictionary *archive = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListMutableContainersAndLeaves format:nil error:nil];
-    if (!archive) {
-        return nil;
-    }
-    int k = 0;
-    while ([[archive[@"$objects"] objectAtIndex:1] objectForKey:[NSString stringWithFormat:@"$%d", k]]) {
-        k += 1;
-    }
-
-    int i = 0;
-    while ([[archive[@"$objects"] objectAtIndex:1] objectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%d", i]]) {
-        NSMutableArray *arr = archive[@"$objects"];
-        NSMutableDictionary *dic = [arr objectAtIndex:1];
-        id obj;
-        if (dic) {
-            obj = [dic objectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%d", i]];
-            if (obj) {
-                [dic setObject:obj forKey:[NSString stringWithFormat:@"$%d",i + k]];
-                [dic removeObjectForKey:[NSString stringWithFormat:@"__nsurlrequest_proto_prop_obj_%d", i]];
-                arr[1] = dic;
-                archive[@"$objects"] = arr;
-            }
-        }
-        i += 1;
-    }
-    if ([[archive[@"$objects"] objectAtIndex:1] objectForKey:@"__nsurlrequest_proto_props"]) {
-        NSMutableArray *arr = archive[@"$objects"];
-        NSMutableDictionary *dic = [arr objectAtIndex:1];
-        if (dic) {
-            id obj;
-            obj = [dic objectForKey:@"__nsurlrequest_proto_props"];
-            if (obj) {
-                [dic setObject:obj forKey:[NSString stringWithFormat:@"$%d",i + k]];
-                [dic removeObjectForKey:@"__nsurlrequest_proto_props"];
-                arr[1] = dic;
-                archive[@"$objects"] = arr;
-            }
-        }
-    }
-
-    id obj = [archive[@"$top"] objectForKey:@"NSKeyedArchiveRootObjectKey"];
-    if (obj) {
-        [archive[@"$top"] setObject:obj forKey:NSKeyedArchiveRootObjectKey];
-        [archive[@"$top"] removeObjectForKey:@"NSKeyedArchiveRootObjectKey"];
-    }
-    NSData *result = [NSPropertyListSerialization dataWithPropertyList:archive format:NSPropertyListBinaryFormat_v1_0 options:0 error:nil];
-    return result;
 }
 
 - (void) mergeFileAtPath:(NSString*)sourcePath toFileAtPath:(NSString*)destinationPath {
@@ -1095,103 +968,3 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
 
 @end
 
-
-
-
-
-
-
-
-
-
-//- (NSData *)turnValidResumeData:(NSData *)data
-//
-//{
-//
-//    if (!data || [data length] < 1) return nil;
-//
-//    NSError *error;
-//
-//    NSDictionary *resumeDictionary = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListMutableContainers format:NULL error:&error];
-//
-//    if (!resumeDictionary || error) return nil;
-//
-//    NSString *localTmpFilePath;
-//
-//    int download_version = [[resumeDictionary objectForKey:@"NSURLSessionResumeInfoVersion"] intValue];
-//
-//    if(download_version==1)
-//
-//    {
-//
-//        localTmpFilePath = [resumeDictionary objectForKey:@"NSURLSessionResumeInfoLocalPath"];
-//
-//        if ([localTmpFilePath length] < 1) return nil;
-//
-//    }
-//
-//    else if(download_version==2)
-//
-//    {
-//
-//        localTmpFilePath = [resumeDictionary objectForKey:@"NSURLSessionResumeInfoTempFileName"];
-//
-//        if ([localTmpFilePath length] < 1) return nil;
-//
-//    }
-//
-//    NSString *localCachePath;
-//
-//    NSString *localLastName = [localTmpFilePath lastPathComponent];
-//
-//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-//
-//    NSString *cachesDir = [paths objectAtIndex:0];
-//
-//    float version = [[[UIDevice currentDevice] systemVersion] floatValue];
-//
-//    if(version>=9.0)
-//
-//    {
-//
-//        return data;
-//
-//    }
-//
-//    else if(version>=8.0&&version<9.0)
-//
-//    {
-//
-//        NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-//
-//        NSString * _localCachePath = [[[cachesDir stringByAppendingPathComponent:@"com.apple.nsurlsessiond/Downloads"]stringByAppendingPathComponent:bundleIdentifier]stringByAppendingPathComponent:localLastName];
-//
-//        if([[NSFileManager defaultManager] fileExistsAtPath:_localCachePath])
-//
-//            localCachePath = _localCachePath;
-//
-//        NSString *temp = NSTemporaryDirectory();
-//
-//        temp = [temp stringByAppendingPathComponent:localLastName];
-//
-//        if([[NSFileManager defaultManager] fileExistsAtPath:temp])
-//
-//            localCachePath = localLastName;
-//
-//    }
-//
-//    else
-//
-//    {
-//
-//        localCachePath = [[cachesDir stringByAppendingPathComponent:@"com.apple.nsnetworkd"]stringByAppendingPathComponent:localLastName];
-//
-//    }
-//
-//    [resumeDictionary setValue:localCachePath forKey:@"NSURLSessionResumeInfoLocalPath"];
-//
-//    data = [NSPropertyListSerialization dataWithPropertyList:resumeDictionary format:NSPropertyListXMLFormat_v1_0 options:0 error:NULL];
-//
-//    return data;
-//
-//}

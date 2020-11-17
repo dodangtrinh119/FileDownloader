@@ -73,7 +73,7 @@
     [self.downloader createNormalDownloadTaskWithItem:item withResumeData:resumeData withPriority:priority returnToQueue:queue downloadProgressBlock:progressBlock completion:completion];
 }
 
-- (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item withData:(NSDictionary *)taskData withPriority:(DownloadTaskPriroity)priority returnToQueue:(dispatch_queue_t)queue downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completion {
+- (void)createTrunkFileDownloadTaskWithItem:(id<DownloadableItem>)item withData:(NSData *)taskData withPriority:(DownloadTaskPriroity)priority returnToQueue:(dispatch_queue_t)queue downloadProgressBlock:(downloadProgressBlock)progressBlock completion:(downloadTaskCompletion)completion {
     [self.downloader createTrunkFileDownloadTaskWithItem:item withData:taskData withPriority:priority returnToQueue:queue downloadProgressBlock:progressBlock completion:completion];
 }
 
