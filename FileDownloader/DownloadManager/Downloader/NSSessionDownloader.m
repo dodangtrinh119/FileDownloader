@@ -330,14 +330,25 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     if (!trunkFileDownloadTask) {
         return;
     }
+    NSLog(@"Trinh test pause download");
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_group_enter(group);
     for (DownloadPartData *part in trunkFileDownloadTask.listPart) {
+        dispatch_group_enter(group);
         [part.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+            NSLog(@"Trinh test pause download at part %@", part.nameOfPart);
             if (resumeData) {
                 part.resumeData = resumeData;
-                [self saveDownloadTask:trunkFileDownloadTask forKey:keyOfTask];
             }
+            dispatch_group_leave(group);
         }];
     }
+    dispatch_group_leave(group);
+    __weak typeof(self) weakSelf = self;
+    dispatch_group_notify(group, self.downloaderQueue, ^{
+        NSLog(@"Trinh test save data");
+        [weakSelf saveDownloadTask:trunkFileDownloadTask forKey:keyOfTask];
+    });
 }
 
 - (void)pauseNormalDownloadTask:(NormalDownloadTask *)normalDownloadTask andStoreWithKey:(NSString*)keyOfTask {
@@ -419,14 +430,17 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
 }
 
 - (NSMutableArray*)splitToMultiplePartSizeWithSize:(long long)fileSize {
+    NSUInteger maximumPartCanSplit = [[NSProcessInfo processInfo] activeProcessorCount] - 3;
     NSMutableArray *listPartSize = [[NSMutableArray alloc] init];
-    NSInteger totalPart = 3;
-    for (NSInteger i = 4; i > 0 ; i--) {
+    NSInteger totalPart = maximumPartCanSplit;
+    
+    for (NSInteger i = maximumPartCanSplit; i > 0 ; i--) {
         if (fileSize % i == 0) {
             totalPart = i;
             break;
         }
     }
+    
     NSInteger totalSize = fileSize;
     NSInteger currentIndex = 0;
     while (totalSize > 0) {
@@ -489,29 +503,51 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
 }
 
 - (void)pauseAllDownloadingItem {
-//    __weak typeof(self) weakSelf = self;
-//    dispatch_sync(self.downloaderQueue, ^{
-//        for (NSString *key in weakSelf.activeDownload.allKeys) {
-//
-//            // When network status changed from available -> not available.
-//            // Pausing all task downloading, and store resume data for resume.
-//            NormalDownloadTask *model = [weakSelf.activeDownload objectForKey:key];
-//            if (model && model.downloadStatus == DownloadStatusDownloading) {
-//                weakSelf.currentDownload --;
-//                [model.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-//                    if (resumeData) {
-//                        model.resumeData = resumeData;
-//                        NSDictionary *storedData = @{@"downloadType": [NSNumber numberWithInteger:NormalDownload],
-//                                                     @"resumeData": resumeData};
-//                        [weakSelf.resumeDataStored setObject:storedData forKey:key];
-//                        [weakSelf saveListResumeData];
-//                    }
-//                }];
-//                model.downloadStatus = DownloadPauseBySystem;
-//            }
-//        }
-//        [weakSelf notifyDidPauseAllDownload];
-//    });
+    __weak typeof(self) weakSelf = self;
+    dispatch_sync(self.downloaderQueue, ^{
+        for (NSString *key in weakSelf.activeDownload.allKeys) {
+
+            // When network status changed from available -> not available.
+            // Pausing all task downloading, and store resume data for resume.
+            id<DownloadTask> downloadTask = [weakSelf.activeDownload objectForKey:key];
+            if (downloadTask && downloadTask.downloadStatus == DownloadStatusDownloading) {
+                weakSelf.currentDownload --;
+                switch (downloadTask.downloadType) {
+                    case NormalDownload: {
+                        NormalDownloadTask *normalDownloadTask = (NormalDownloadTask*)downloadTask;
+                        [normalDownloadTask.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+                            if (resumeData) {
+                                normalDownloadTask.resumeData = resumeData;
+                                [weakSelf saveDownloadTask:normalDownloadTask forKey:key];
+                            }
+                        }];
+                        break;
+                    }
+                    case TrunkFileDownload: {
+                        TrunkFileDownloadTask *trunkFileDownloadTask = (TrunkFileDownloadTask *)downloadTask;
+                        dispatch_group_t group = dispatch_group_create();
+                        dispatch_group_enter(group);
+                        for (DownloadPartData* part in trunkFileDownloadTask.listPart) {
+                            dispatch_group_enter(group);
+                            [part.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+                                part.resumeData = resumeData;
+                                dispatch_group_leave(group);
+                            }];
+                        }
+                        dispatch_group_leave(group);
+                        dispatch_group_notify(group, self.downloaderQueue, ^{
+                            [weakSelf saveDownloadTask:trunkFileDownloadTask forKey:key];
+                        });
+                        break;
+                    }
+                    
+                }
+                
+                downloadTask.downloadStatus = DownloadPauseBySystem;
+            }
+        }
+        [weakSelf notifyDidPauseAllDownload];
+    });
 }
 
 - (void)resumeAllPausingItem {
@@ -684,6 +720,7 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     }
     
     if (location) {
+        // When fisnished download -> copy file from temp folder to destination folder -> return completion for all task waiting this.
         NSString *keyOfTask = [sourceUrl absoluteString];
         NSLog(@"Finished download");
         NSFileManager *fileManager = NSFileManager.defaultManager;
@@ -730,6 +767,8 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
                         break;
                     }
                 }
+                
+                //When all part downloaded merge it into 1 file.
                 if ([trunkFileDownloadTask isFinisedAllPart]) {
                     NSLog(@"Finished downloading all part");
                     NSString *fileMergedPath = [[self localFilePathOfUrl:[trunkFileDownloadTask.listPart firstObject].nameOfPart] path];
@@ -768,28 +807,6 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     // Start download item in waiting queue.
     [self downloadItemInWaitingQueue];
     
-    // When fisnished download -> copy file from temp folder to destination folder -> return completion for all task waiting this.
-//    if (location) {
-//        NSString *keyOfTask = [sourceUrl absoluteString];
-//        NSLog(@"Finished download");
-//
-//        NormalDownloadTask *downloadTask = [self.activeDownload objectForKey:keyOfTask];
-//        if (downloadTask) {
-//            downloadTask.downloadStatus = DownloadFinished;
-//        }
-//        NSURL* destinationUrl = [self localFilePathOfUrl:sourceUrl];
-//        NSFileManager *fileManager = NSFileManager.defaultManager;
-//        NSError *saveFileError = nil;
-//
-//        // Copy temp file after downloaded to destination path and stored with right format of file.
-//        [fileManager copyItemAtURL:location toURL:destinationUrl error:&saveFileError];
-//        if (saveFileError) {
-//            downloadTask.downloadStatus = DownloadError;
-//            [self returnForAllTask:sourceUrl storedLocation:nil response:nil error:DownloadErrorByCode(StoreLocalError)];
-//        } else {
-//            [self returnForAllTask:sourceUrl storedLocation:destinationUrl response:nil error:nil];
-//        }
-//    }
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
@@ -803,11 +820,11 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     id<DownloadTask> downloadTask = [self.activeDownload objectForKey:key];
     if (!error) {
         return;
-    } else if (error.code == NSURLErrorCancelled && [error.userInfo objectForKey:@"NSURLSessionDownloadTaskResumeData"]) {
-        if (downloadTask.downloadStatus == DownloadPending) {
+    } else if (error.code == NSURLErrorCancelled) {
+        NSData *resumeData = [error.userInfo objectForKey:@"NSURLSessionDownloadTaskResumeData"];
+        if (downloadTask.downloadStatus == DownloadPending || !resumeData) {
             return;
         }
-        NSData *resumeData = [error.userInfo objectForKey:@"NSURLSessionDownloadTaskResumeData"];
         switch (downloadTask.downloadType) {
             case NormalDownload: {
                 if (self.observers.count > 0) {
