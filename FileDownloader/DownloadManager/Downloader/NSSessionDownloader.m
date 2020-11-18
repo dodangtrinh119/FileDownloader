@@ -506,7 +506,6 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     __weak typeof(self) weakSelf = self;
     dispatch_sync(self.downloaderQueue, ^{
         for (NSString *key in weakSelf.activeDownload.allKeys) {
-
             // When network status changed from available -> not available.
             // Pausing all task downloading, and store resume data for resume.
             id<DownloadTask> downloadTask = [weakSelf.activeDownload objectForKey:key];
@@ -903,9 +902,6 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
                     completionModel.progressBlock(task.downloadItem, totalPartDownloaded, task.fileSize);
                     break;
                 }
-                    
-                default:
-                    break;
             }
         }
     }
