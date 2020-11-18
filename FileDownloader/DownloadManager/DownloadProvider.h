@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)cancelDownloadItem:(id<DownloadableItem>)item;
 
-- (void)pauseDownloadItem:(id<DownloadableItem>)item;
+- (void)pauseDownloadItem:(id<DownloadableItem>)item completion:(completionBlock)completion;
 
 - (void)resumeDownloadItem:(id<DownloadableItem>)item
          returnToQueue:(dispatch_queue_t)queue

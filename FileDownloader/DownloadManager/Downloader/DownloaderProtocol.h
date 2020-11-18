@@ -16,6 +16,8 @@ typedef void(^downloadTaskCompletion)(NSURL * _Nullable location, NSURLResponse 
 
 typedef void(^downloadProgressBlock)(id<DownloadableItem> item, int64_t byteWritten, int64_t totalByte);
 
+typedef void(^completionBlock)(void);
+
 typedef void(^resultBlock)(BOOL isSuccess);
 
 typedef void(^getItemSizeBlock)(NSInteger itemSize, NSError *error);
@@ -36,7 +38,7 @@ typedef void(^getItemSizeBlock)(NSInteger itemSize, NSError *error);
 
 - (void)cancelDownloadItem:(id<DownloadableItem>)item;
 
-- (void)pauseDownloadItem:(id<DownloadableItem>)item;
+- (void)pauseDownloadItem:(id<DownloadableItem>)item completion:(completionBlock)completion;
 
 - (void)resumeDownloadItem:(id<DownloadableItem>)item
          returnToQueue:(dispatch_queue_t)queue

@@ -37,7 +37,7 @@ typedef void(^downloadCompletion)(NSURL * _Nullable location, NSError * _Nullabl
 
 - (void)cancelDownloadItem:(id<DownloadableItem>)item;
 
-- (void)pauseDownloadItem:(id<DownloadableItem>)item;
+- (void)pauseDownloadItem:(id<DownloadableItem>)item completion:(completionBlock)completion;
 
 - (void)saveListItemDownloaded;
 

@@ -69,8 +69,10 @@
 
 - (void)pauseDownload:(nonnull MusicItem *)model {
     NSInteger index = [self.listMusics indexOfObject:model];
-    [[DownloadManager sharedInstance] pauseDownloadItem:model];
-    self.reloadRowsAtIndex(index);
+    __weak typeof(self) weakSelf = self;
+    [[DownloadManager sharedInstance] pauseDownloadItem:model completion:^{
+        weakSelf.reloadRowsAtIndex(index);
+    }];
 }
 
 - (void)resumeDownload:(nonnull MusicItem *)model {

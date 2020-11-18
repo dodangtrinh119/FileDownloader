@@ -83,12 +83,14 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
             case NormalDownload: {
                 NormalDownloadTask *normalDownloadTask = (NormalDownloadTask *)downloadTask;
                 [normalDownloadTask.task cancel];
+                normalDownloadTask.task = nil;
                 break;
             }
             case TrunkFileDownload: {
                 TrunkFileDownloadTask *trunkFileDownloadTask = (TrunkFileDownloadTask *)downloadTask;
                 for (DownloadPartData *part in trunkFileDownloadTask.listPart) {
                     [part.task cancel];
+                    part.task = nil;
                 }
                 break;
             }
@@ -300,7 +302,7 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     }
 }
 
-- (void)pauseDownloadItem:(id<DownloadableItem>)item {
+- (void)pauseDownloadItem:(id<DownloadableItem>)item completion:(completionBlock)completion {
     __weak typeof(self) weakSelf = self;
     dispatch_async(self.downloaderQueue, ^{
         NSString *keyOfTask = [item.downloadURL absoluteString];
@@ -313,12 +315,12 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
         switch (downloadTask.downloadType) {
             case NormalDownload: {
                 NormalDownloadTask *normalDownloadTask = (NormalDownloadTask *)downloadTask;
-                [weakSelf pauseNormalDownloadTask:normalDownloadTask andStoreWithKey:keyOfTask];
+                [weakSelf pauseNormalDownloadTask:normalDownloadTask andStoreWithKey:keyOfTask completion:completion];
                 break;
             }
             case TrunkFileDownload: {
                 TrunkFileDownloadTask *trunkFileDownloadTask = (TrunkFileDownloadTask *)downloadTask;
-                [weakSelf pauseTrunkFileDownloadTask:trunkFileDownloadTask andStoreWithKey:keyOfTask];
+                [weakSelf pauseTrunkFileDownloadTask:trunkFileDownloadTask andStoreWithKey:keyOfTask completion:completion];
                 break;
             }
         }
@@ -326,7 +328,7 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     });
 }
 
-- (void)pauseTrunkFileDownloadTask:(TrunkFileDownloadTask *)trunkFileDownloadTask andStoreWithKey:(NSString*)keyOfTask {
+- (void)pauseTrunkFileDownloadTask:(TrunkFileDownloadTask *)trunkFileDownloadTask andStoreWithKey:(NSString*)keyOfTask completion:(completionBlock)completion {
     if (!trunkFileDownloadTask) {
         return;
     }
@@ -347,17 +349,23 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     __weak typeof(self) weakSelf = self;
     dispatch_group_notify(group, self.downloaderQueue, ^{
         NSLog(@"Trinh test save data");
+        if (completion) {
+            completion();
+        }
         [weakSelf saveDownloadTask:trunkFileDownloadTask forKey:keyOfTask];
     });
 }
 
-- (void)pauseNormalDownloadTask:(NormalDownloadTask *)normalDownloadTask andStoreWithKey:(NSString*)keyOfTask {
+- (void)pauseNormalDownloadTask:(NormalDownloadTask *)normalDownloadTask andStoreWithKey:(NSString*)keyOfTask completion:(completionBlock)completion {
     __weak typeof(self) weakSelf = self;
     [normalDownloadTask.task cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
         [weakSelf downloadItemInWaitingQueue];
         if (resumeData) {
             normalDownloadTask.resumeData = resumeData;
             [weakSelf saveDownloadTask:normalDownloadTask forKey:keyOfTask];
+            if (completion) {
+                completion();
+            }
         }
     }];
 }
@@ -374,7 +382,7 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
         
         // Check if same time run maximum -> add to waiting queue.
         // if not continue process download.
-        if (![weakSelf canStartDownloadItem] && downloadTask) {
+        if (![weakSelf canStartDownloadItem]) {
             [weakSelf addTaskToPendingList:downloadTask];
             return;
         }
@@ -605,10 +613,10 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     return DownloadUnknown;
 }
 
-- (NormalDownloadTask *)pickAvailableTaskForDownload {
+- (id<DownloadTask>)pickAvailableTaskForDownload {
     
     // Check if first time download -> get highest priority to download.
-    NormalDownloadTask *downloadTask = nil;
+    id<DownloadTask> downloadTask = nil;
     if (self.downloadStatistics.totalTaskDownloaded == 0) {
         return [self getHighestPriorityDownloadTask];
     }
@@ -649,9 +657,9 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     
 }
 
-- (NormalDownloadTask*)getHighestPriorityDownloadTask {
+- (id<DownloadTask>)getHighestPriorityDownloadTask {
     
-    NormalDownloadTask *highestPriorityDownloadItem = nil;
+    id<DownloadTask> highestPriorityDownloadItem = nil;
     
     highestPriorityDownloadItem = [self.highPriorityDownloadItems firstObject];
     if (highestPriorityDownloadItem) {
@@ -682,21 +690,45 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
         if (![weakSelf canStartDownloadItem]) {
             return;
         }
-        NormalDownloadTask *downloadTask = [weakSelf pickAvailableTaskForDownload];
+        id<DownloadTask> downloadTask = [weakSelf pickAvailableTaskForDownload];
         if (downloadTask) {
-            //NSString *keyForTask = [downloadTask.downloadItem.downloadURL absoluteString];
             NSMutableArray *listObserverForTask = downloadTask.observers;
-            for (CompletionDownloadModel *completionModel in listObserverForTask) {
-                DownloadStatus downloadStatus = downloadTask.downloadStatus;
-                if (downloadStatus == DownloadPending) {
-                    [weakSelf resumeDownloadItem:downloadTask.downloadItem returnToQueue:completionModel.returnQueue completion:completionModel.completionHandler];
-                } else {
-                    weakSelf.currentDownload++;
-                    downloadTask.downloadStatus = DownloadStatusDownloading;
-                    downloadTask.task = [weakSelf.downloadSession downloadTaskWithURL:downloadTask.downloadItem.downloadURL];
-                    [downloadTask.task resume];
+            switch (downloadTask.downloadType) {
+                case NormalDownload:
+                    for (CompletionDownloadModel *completionModel in listObserverForTask) {
+                        DownloadStatus downloadStatus = downloadTask.downloadStatus;
+                        if (downloadStatus == DownloadPending) {
+                            [weakSelf resumeDownloadItem:downloadTask.downloadItem returnToQueue:completionModel.returnQueue completion:completionModel.completionHandler];
+                        } else {
+                            NormalDownloadTask *normalDownloadTask = (NormalDownloadTask*)downloadTask;
+                            weakSelf.currentDownload++;
+                            normalDownloadTask.downloadStatus = DownloadStatusDownloading;
+                            normalDownloadTask.task = [weakSelf.downloadSession downloadTaskWithURL:downloadTask.downloadItem.downloadURL];
+                            [normalDownloadTask.task resume];
+                        }
+                    }
+                    break;
+                case TrunkFileDownload: {
+                    for (CompletionDownloadModel *completionModel in listObserverForTask) {
+                        DownloadStatus downloadStatus = downloadTask.downloadStatus;
+                        if (downloadStatus == DownloadPending) {
+                            [weakSelf resumeDownloadItem:downloadTask.downloadItem returnToQueue:completionModel.returnQueue completion:completionModel.completionHandler];
+                        } else {
+                            weakSelf.currentDownload++;
+                            downloadTask.downloadStatus = DownloadStatusDownloading;
+                            TrunkFileDownloadTask *trunkFileDownloadTask = (TrunkFileDownloadTask*)downloadTask;
+                            [weakSelf getDownloadSize:downloadTask.downloadItem.downloadURL completion:^(long itemSize, NSError * _Nonnull error) {
+                                downloadTask.fileSize = itemSize;
+                                [weakSelf startTrunkFileDownloadTask:trunkFileDownloadTask];
+                                [weakSelf saveDownloadTask:downloadTask forKey:[trunkFileDownloadTask.downloadItem.downloadURL absoluteString]];
+                            }];
+                        }
+                    }
+                    break;
                 }
             }
+            //NSString *keyForTask = [downloadTask.downloadItem.downloadURL absoluteString];
+       
         }
     });
 }
@@ -742,6 +774,8 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
                 } else {
                     [self returnForAllTask:sourceUrl storedLocation:destinationUrl response:nil error:nil];
                 }
+                self.currentDownload--;
+                self.downloadStatistics.totalTaskDownloaded++;
                 break;
             }
             case TrunkFileDownload: {
@@ -790,7 +824,8 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
                     }
                     [self removeStoredAtKey:keyOfTask];
                     [self returnForAllTask:sourceUrl storedLocation:destinationUrl response:nil error:nil];
-
+                    self.currentDownload--;
+                    self.downloadStatistics.totalTaskDownloaded++;
                 }
             }
             default:
@@ -800,8 +835,7 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
     }
     
     // Degree current download, and increase total downloaded item.
-    self.currentDownload--;
-    self.downloadStatistics.totalTaskDownloaded++;
+    
     
     // Start download item in waiting queue.
     [self downloadItemInWaitingQueue];
@@ -898,6 +932,13 @@ float const LOW_PRIORITY_PROPORTION_EXPECT = 0.3;
                         }
                         totalPartDownloaded += part.currentByteDownloaded;
                     }
+                    
+                    if (totalPartDownloaded > task.fileSize) {
+                        for (DownloadPartData *part in trunkFileTask.listPart) {
+                            part.currentByteDownloaded = 0;
+                        }
+                    }
+                    
                     task.progress = totalPartDownloaded / task.fileSize;
                     completionModel.progressBlock(task.downloadItem, totalPartDownloaded, task.fileSize);
                     break;

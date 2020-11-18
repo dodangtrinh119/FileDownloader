@@ -71,8 +71,8 @@
     [self.downloadProvider cancelDownloadItem:item];
 }
 
-- (void)pauseDownloadItem:(id<DownloadableItem>)item {
-    [self.downloadProvider pauseDownloadItem:item];
+- (void)pauseDownloadItem:(id<DownloadableItem>)item completion:(completionBlock)completion {
+    [self.downloadProvider pauseDownloadItem:item completion:completion];
 }
 
 - (void)resumeDownloadItem:(id<DownloadableItem>)item completion:(downloadCompletion)completionHandler {
